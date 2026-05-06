@@ -22,25 +22,20 @@ export class MainMenuScene extends Phaser.Scene {
   }
 
 _crearFondo() {
-  // 1. Fondo negro de base (por seguridad)
   this.add.rectangle(0, 0, W, H, 0x1a0e06).setOrigin(0);
 
-  // 2. AGREGAR LA IMAGEN (Esto es lo que te faltaba)
   if (this.textures.exists('fondo_arg')) {
     this.add.image(0, 0, 'fondo_arg')
       .setOrigin(0)
       .setDisplaySize(W, H)
-      .setAlpha(0.7); // Le pongo 0.7 para que se vea un poco el efecto de estrellas de abajo
+      .setAlpha(0.7);
   }
 
-  // 3. Tus líneas horizontales (las mantenemos)
   for (let y = 0; y < H; y += 55)
     this.add.rectangle(0, y, W, 1, 0xffffff, 0.02).setOrigin(0);
 
-  // 4. Tu separador central
   this.add.rectangle(480, 0, 1, H, 0xc09060, 0.15).setOrigin(0.5, 0);
 
-  // 5. El efecto de las estrellas (las mantenemos)
   for (let i = 0; i < 50; i++) {
     const star = this.add.circle(
       Phaser.Math.Between(0, W), Phaser.Math.Between(0, H),

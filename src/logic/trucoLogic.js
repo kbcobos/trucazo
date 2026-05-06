@@ -380,9 +380,9 @@ export class TrucoLogic {
       else this.puntosRival += pts;
     }
     this.emit('puntosActualizados', this.puntosJugador, this.puntosRival);
-    this.estado = this.turnoJugador
-      ? EstadoJuego.TURNO_JUGADOR
-      : EstadoJuego.TURNO_RIVAL;
+    if (this._comprobarGanadorPartida()) return;
+    if (this._comprobarFinal()) return;
+    this.estado = this.turnoJugador ? EstadoJuego.TURNO_JUGADOR : EstadoJuego.TURNO_RIVAL;
   }
 
   _calcularPuntosEnvidoEnJuego(nivel) {
@@ -413,11 +413,16 @@ export class TrucoLogic {
 
   irAlMazo(quien) {
     const pts = (this.trucoActual !== LlamadaTruco.NINGUNA && this.respuestaTruco === Respuesta.QUIERO)
-      ? this.puntosTrucoEnJuego : 1;
-    if (quien === 'jugador') this.puntosRival   += pts;
-    else                     this.puntosJugador += pts;
+    ? this.puntosTrucoEnJuego : 1;
+    
+    if (quien === 'jugador') this.puntosRival += pts;
+    else this.puntosJugador += pts;
+    
     this.emit('puntosActualizados', this.puntosJugador, this.puntosRival);
-    this._resolverMano();
+    
+    if (!this._comprobarGanadorPartida()) {
+      this._resolverMano();
+    }
   }
 
   puedeCantarTruco(quien) {
@@ -458,5 +463,31 @@ export class TrucoLogic {
     console.log('Bazas:', this.bazas.length);
     console.log('Truco:', this.trucoActual, '| Envido:', this.enviDoActual);
     console.log('Aura mano:', this.auraGanadaMano);
+  }
+  
+  _comprobarGanadorPartida() {
+    if (this.puntosJugador >= this.puntosParaGanar) {
+      this.estado = EstadoJuego.FIN_PARTIDA;
+      this.emit('partidaTerminada', 'jugador');
+      return true;
+    } else if (this.puntosRival >= this.puntosParaGanar) {
+      this.estado = EstadoJuego.FIN_PARTIDA;
+      this.emit('partidaTerminada', 'rival');
+      return true;
+    }
+    return false;
+  }
+  
+  _comprobarFinal() {
+    if (this.puntosJugador >= this.puntosParaGanar) {
+      this.estado = EstadoJuego.FIN_PARTIDA;
+      this.emit('partidaTerminada', 'jugador');
+      return true;
+    } else if (this.puntosRival >= this.puntosParaGanar) {
+      this.estado = EstadoJuego.FIN_PARTIDA;
+      this.emit('partidaTerminada', 'rival');
+      return true;
+    }
+    return false;
   }
 }

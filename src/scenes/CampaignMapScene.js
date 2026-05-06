@@ -1,7 +1,3 @@
-// ============================================================
-// src/scenes/CampaignMapScene.js — LANDSCAPE 960×540 (FIXED)
-// ============================================================
-
 import Phaser from 'phaser';
 
 const W = 960;
@@ -12,25 +8,25 @@ const PROVINCIAS = [
     id:'tierra_del_fuego', nombre:'Tierra del Fuego', sub:'INICIO',
     x:270, y:500, jefe:'Mariano Torre', apodo:'El Casi Ángel',
     desc:'Actor de Casi Ángeles reconvertido en jugador. Principiante con cara de protagonista.',
-    dif:1, aura:80, pts:15, estado:'completada' 
+    dif:1, aura:80, pts:15, estado:'actual' 
   },
   { 
     id:'santa_cruz', nombre:'Santa Cruz', sub:'',
     x:185, y:400, jefe:'Néstor Kirchner', apodo:'El Pingüino',
     desc:'Nunca muestra lo que tiene. Cada canto es una negociación política.',
-    dif:2, aura:120, pts:15, estado:'completada' 
+    dif:2, aura:120, pts:15, estado:'locked' 
   },
   { 
     id:'buenos_aires', nombre:'Buenos Aires', sub:'',
     x:390, y:240, jefe:'Ricardo Fort', apodo:'El Rey del Chocolate',
     desc:'Millonario y extravagante. Canta truco con champagne en mano.',
-    dif:3, aura:160, pts:15, estado:'actual' 
+    dif:3, aura:160, pts:15, estado:'locked' 
   },
   { 
     id:'santa_fe', nombre:'Santa Fe', sub:'',
     x:330, y:200, jefe:'Lionel Messi', apodo:'La Pulga',
     desc:'No habla. No farolea. No necesita. Precisión quirúrgica.',
-    dif:4, aura:200, pts:15, estado:'disponible' 
+    dif:4, aura:200, pts:15, estado:'locked' 
   },
   { 
     id:'cordoba', nombre:'Córdoba', sub:'',
@@ -61,8 +57,8 @@ export class CampaignMapScene extends Phaser.Scene {
   init(data) {
     this.powerupsActivos   = data.powerupsActivos   ?? [];
     this.aura              = data.aura              ?? 0;
-    this.provinciasDesbloq = data.provinciasDesbloq ?? ['tierra_del_fuego','santa_cruz','buenos_aires','santa_fe'];
-    this.provinciaActual   = data.provinciaActual   ?? 'buenos_aires';
+    this.provinciasDesbloq = data.provinciasDesbloq ?? ['tierra_del_fuego'];
+    this.provinciaActual   = data.provinciaActual   ?? 'tierra_del_fuego';
   }
 
   preload() {
@@ -82,29 +78,19 @@ export class CampaignMapScene extends Phaser.Scene {
     this.cameras.main.fadeIn(400, 0, 0, 0);
   }
 
-  // ────────────────────────────────────────────────────────
-  // FONDO — usa imagen si existe, sino dibuja con Graphics
-  // ────────────────────────────────────────────────────────
-
   _crearFondo() {
-    // ── Si tenés el PNG del mapa, lo muestra acá ──────────
     if (this.textures.exists('mapa_arg')) {
-      // Fondo océano
       this.add.rectangle(0, 0, W, H, 0x0d1a2a).setOrigin(0);
-      // Imagen del mapa ocupando el lado izquierdo (60% del canvas)
       this.add.image(0, 0, 'mapa_arg')
         .setOrigin(0, 0)
         .setDisplaySize(580, H);
 
-    // ── Sin imagen: dibuja la silueta con Graphics ─────────
     } else {
       const g = this.add.graphics();
 
-      // Océano
       g.fillStyle(0x0d1a2a, 1);
       g.fillRect(0, 0, W, H);
 
-      // Silueta de Argentina
       g.fillStyle(0x1e3320, 1);
       g.lineStyle(1, 0x2a4a2a, 1);
       g.beginPath();
@@ -124,22 +110,15 @@ export class CampaignMapScene extends Phaser.Scene {
       g.strokePath();
     }
 
-    // Panel derecho (info del jefe) — siempre oscuro
     this.add.rectangle(580, 0, W - 580, H, 0x0a0604, 0.97).setOrigin(0);
 
-    // Separador
     this.add.rectangle(580, 0, 1, H, 0xc09060, 0.25).setOrigin(0);
 
-    // Título del mapa (encima de la imagen o del gráfico)
     this.add.text(290, 18, 'RUTA DEL MENTIROSO', {
       fontSize: '10px', color: 'rgba(255,220,140,0.7)',
       fontFamily: "'Chakra Petch', monospace", letterSpacing: 5
     }).setOrigin(0.5);
   }
-
-  // ────────────────────────────────────────────────────────
-  // HUD
-  // ────────────────────────────────────────────────────────
 
   _crearHUD() {
     this.add.rectangle(0, 0, 580, 36, 0x000000, 0.55).setOrigin(0);
@@ -154,10 +133,6 @@ export class CampaignMapScene extends Phaser.Scene {
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(1, 0.5);
   }
-
-  // ────────────────────────────────────────────────────────
-  // RUTA PUNTEADA
-  // ────────────────────────────────────────────────────────
 
   _dibujarRuta() {
     const g = this.add.graphics();
@@ -186,17 +161,12 @@ export class CampaignMapScene extends Phaser.Scene {
     }
   }
 
-  // ────────────────────────────────────────────────────────
-  // MARCADORES
-  // ────────────────────────────────────────────────────────
-
   _dibujarProvincias() {
     for (const prov of PROVINCIAS) {
       const estado = this._estadoProvincia(prov.id);
       const color  = ESTADO_COLOR[estado];
       const g      = this.add.graphics();
 
-      // Pulso para actual
       if (estado === 'actual') {
         g.fillStyle(color, 0.22);
         g.fillCircle(prov.x, prov.y, 22);
@@ -206,19 +176,16 @@ export class CampaignMapScene extends Phaser.Scene {
         });
       }
 
-      // Círculo principal
       g.fillStyle(estado === 'locked' ? 0x333333 : color, 1);
       g.fillCircle(prov.x, prov.y, 12);
       g.lineStyle(2, 0x1a2a1a, 1);
       g.strokeCircle(prov.x, prov.y, 12);
 
-      // Ícono dentro
       const iconos = { completada:'✓', actual:'★', disponible:'●', locked:'🔒' };
       this.add.text(prov.x, prov.y + 1, iconos[estado], {
         fontSize: '10px', color: '#ffffff'
       }).setOrigin(0.5);
 
-      // Etiqueta nombre
       const lblX   = prov.x > 290 ? prov.x + 16 : prov.x - 16;
       const anchor = prov.x > 290 ? 0 : 1;
       this.add.text(lblX, prov.y + 1, prov.nombre, {
@@ -227,7 +194,6 @@ export class CampaignMapScene extends Phaser.Scene {
         fontFamily: "'Chakra Petch', monospace"
       }).setOrigin(anchor, 0.8);
 
-      // Subtítulo INICIO / FINAL
       if (prov.sub) {
         const sc = { INICIO:'#34a853', FINAL:'#e24b4a' }[prov.sub] ?? '#888';
         this.add.text(prov.x, prov.y - 22, prov.sub, {
@@ -236,7 +202,6 @@ export class CampaignMapScene extends Phaser.Scene {
         }).setOrigin(0.5);
       }
 
-      // Área de click
       if (estado !== 'locked') {
         const hit = this.add.circle(prov.x, prov.y, 24, 0xffffff, 0)
           .setInteractive({ useHandCursor: true });
@@ -247,10 +212,6 @@ export class CampaignMapScene extends Phaser.Scene {
     }
   }
 
-  // ────────────────────────────────────────────────────────
-  // PANEL DE INFO (lado derecho)
-  // ────────────────────────────────────────────────────────
-
   _crearPanelInfoVacio() {
     this._infoHint = this.add.text(770, H / 2,
       'Tocá una provincia\npara ver el jefe.', {
@@ -260,7 +221,6 @@ export class CampaignMapScene extends Phaser.Scene {
   }
 
   _seleccionarProvincia(prov) {
-    // Limpiar panel anterior
     this._panelInfo.forEach(o => o.destroy());
     this._panelInfo = [];
     if (this._infoHint) { this._infoHint.destroy(); this._infoHint = null; }
@@ -273,7 +233,6 @@ export class CampaignMapScene extends Phaser.Scene {
 
     const mk = (obj) => { this._panelInfo.push(obj); return obj; };
 
-    // Nombre del jefe
     mk(this.add.text(cx, 40, prov.jefe, {
       fontSize: '16px', color: '#e8c88a', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace",
@@ -300,7 +259,6 @@ export class CampaignMapScene extends Phaser.Scene {
 
     mk(this.add.rectangle(cx, 225, pw - 20, 1, 0xc09060, 0.25).setOrigin(0.5));
 
-    // Stats
     const rows = [
       ['Dificultad', '★'.repeat(prov.dif) + '☆'.repeat(7 - prov.dif), '#EF9F27'],
       ['Recompensa', `${prov.aura} Aura`, '#e8c88a'],
@@ -320,7 +278,6 @@ export class CampaignMapScene extends Phaser.Scene {
 
     mk(this.add.rectangle(cx, 332, pw - 20, 1, 0xc09060, 0.25).setOrigin(0.5));
 
-    // Botón jugar
     const btnTxt = estado === 'completada' ? '↩ REVANCHA' : '¡JUGAR AHORA!';
     const btnBg  = mk(this.add.rectangle(cx, 382, pw - 24, 52, 0x2a1608).setOrigin(0.5));
     btnBg.setStrokeStyle(1.5, 0xEF9F27).setInteractive({ useHandCursor: true });
@@ -333,7 +290,6 @@ export class CampaignMapScene extends Phaser.Scene {
     btnBg.on('pointerout',   () => btnBg.setFillStyle(0x2a1608));
     btnBg.on('pointerdown',  () => this._iniciarPartida(prov));
 
-    // Leyenda de colores
     mk(this.add.rectangle(cx, 460, pw - 20, 1, 0xc09060, 0.15).setOrigin(0.5));
     const leyenda = [
       { col: 0x34a853, txt: 'Completada' },
@@ -353,16 +309,11 @@ export class CampaignMapScene extends Phaser.Scene {
       }).setOrigin(0, 0.5));
     });
 
-    // Fade in del panel
     this._panelInfo.forEach(o => {
       o.setAlpha(0);
       this.tweens.add({ targets: o, alpha: 1, duration: 200 });
     });
   }
-
-  // ────────────────────────────────────────────────────────
-  // INICIAR PARTIDA
-  // ────────────────────────────────────────────────────────
 
   _iniciarPartida(prov) {
     this.cameras.main.fadeOut(400, 0, 0, 0);
@@ -373,7 +324,9 @@ export class CampaignMapScene extends Phaser.Scene {
         puntosParaGanar: prov.pts,
         recompensaAura:  prov.aura,
         powerupsActivos: this.powerupsActivos,
-        aura:            this.aura
+        aura:            this.aura,
+        provinciasDesbloq: this.provinciasDesbloq,
+        provinciaActual:   this.provinciaActual
       });
     });
   }

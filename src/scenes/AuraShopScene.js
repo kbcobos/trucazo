@@ -10,6 +10,9 @@ export class AuraShopScene extends Phaser.Scene {
   constructor() { super('AuraShop'); }
 
   init(data) {
+    this.provinciasDesbloq = data.provinciasDesbloq ?? ['tierra_del_fuego'];
+    this.provinciaActual   = data.provinciaActual   ?? 'tierra_del_fuego';
+    this.auraDisponible    = (data.aura ?? 0) + (data.recompensaAura ?? 0);
     this.auraDisponible  = (data.aura ?? 0) + (data.recompensaAura ?? 0);
     this.provinciaId     = data.provinciaId    ?? 'tierra_del_fuego';
     this.powerupsActivos = data.powerupsActivos ?? [];
@@ -50,7 +53,6 @@ export class AuraShopScene extends Phaser.Scene {
       this.add.rectangle(x, 0, 1, H, 0xffffff, 0.015).setOrigin(0);
     for (let y = 0; y < H; y += 55)
       this.add.rectangle(0, y, W, 1, 0xffffff, 0.015).setOrigin(0);
-    // Separador panel izquierdo
     this.add.rectangle(220, 0, 1, H, 0xc09060, 0.2).setOrigin(0);
   }
 
@@ -185,12 +187,10 @@ export class AuraShopScene extends Phaser.Scene {
       
       const container = this.add.container(x, cardY);
       
-      // 1. EL FONDO PRIMERO (para que esté atrás)
       const bg = this.add.rectangle(0, 0, cardW, cardH, 0x120801, 0.96).setOrigin(0);
       bg.setStrokeStyle(yaComprado ? 2 : 1.5, yaComprado ? 0x34a853 : color);
       container.add(bg);
 
-      // 2. ICONO O PLAN B
       let ico;
       if (this.textures.exists(p.id)) {
         ico = this.add.image(cardW / 2, 36, p.id).setDisplaySize(48, 48);
@@ -205,7 +205,6 @@ export class AuraShopScene extends Phaser.Scene {
         container.add([ico, letra]);
       }
       
-      // 3. TEXTOS (Todos agregados al container)
       const lblRareza = this.add.text(cardW / 2, 68, RAREZA_LABEL[p.rareza], {
         fontSize: '9px', color: `#${color.toString(16).padStart(6,'0')}`,
         fontFamily: "'Chakra Petch'", fontStyle: 'bold', letterSpacing: 2
@@ -231,7 +230,6 @@ export class AuraShopScene extends Phaser.Scene {
       
       container.add([lblRareza, lblNombre, sep, lblDesc, lblPrecio]);
 
-      // 4. BOTÓN
       if (!yaComprado) {
         const btnColor  = puedePagar ? 0x2a1608 : 0x1a1208;
         const btnBorder = puedePagar ? color : 0x333333;
@@ -337,7 +335,9 @@ export class AuraShopScene extends Phaser.Scene {
     this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.start('CampaignMap', {
         powerupsActivos: this.powerupsActivos,
-        aura: this.auraDisponible
+        aura: this.auraDisponible,
+        provinciasDesbloq: this.provinciasDesbloq,
+        provinciaActual:   this.provinciaActual
       });
     });
   }

@@ -28,6 +28,8 @@ export class GameBoardScene extends Phaser.Scene {
     this.recompensaAura  = data.recompensaAura   ?? 80;
     this.powerupsActivos = data.powerupsActivos  ?? [];
     this.aura            = data.aura             ?? 0;
+    this.provinciasDesbloq = data.provinciasDesbloq ?? ['tierra_del_fuego'];
+    this.provinciaActual   = data.provinciaActual   ?? 'tierra_del_fuego';
   }
 
 preload() {
@@ -40,56 +42,12 @@ preload() {
   
   for (const palo of palos) {
     for (const num of nums) {
-// Esto se transformará en "espada_1", "basto_5", "oro_12", etc.
       const clave = `${palo}_${num}`;
-
-      // Esto se transformará en la ruta correcta para cada imagen
       const ruta = `assets/cards/${palo}_${num}.jpeg`;
-      
-      // 3. Cargamos la imagen
-      this.load.image("espada_1", "assets/cards/espada_1.jpeg");
-      this.load.image("espada_2", "assets/cards/espada_2.jpeg");
-      this.load.image("espada_3", "assets/cards/espada_3.jpeg");
-      this.load.image("espada_4", "assets/cards/espada_4.jpeg");
-      this.load.image("espada_5", "assets/cards/espada_5.jpeg");
-      this.load.image("espada_6", "assets/cards/espada_6.jpeg");
-      this.load.image("espada_7", "assets/cards/espada_7.jpeg");
-      this.load.image("espada_10", "assets/cards/espada_10.jpeg");
-      this.load.image("espada_11", "assets/cards/espada_11.jpeg");
-      this.load.image("espada_12", "assets/cards/espada_12.jpeg");
-      this.load.image("basto_1", "assets/cards/basto_1.jpeg");
-      this.load.image("basto_2", "assets/cards/basto_2.jpeg");
-      this.load.image("basto_3", "assets/cards/basto_3.jpeg");
-      this.load.image("basto_4", "assets/cards/basto_4.jpeg");
-      this.load.image("basto_5", "assets/cards/basto_5.jpeg");
-      this.load.image("basto_6", "assets/cards/basto_6.jpeg");
-      this.load.image("basto_7", "assets/cards/basto_7.jpeg");
-      this.load.image("basto_10", "assets/cards/basto_10.jpeg");
-      this.load.image("basto_11", "assets/cards/basto_11.jpeg");
-      this.load.image("basto_12", "assets/cards/basto_12.jpeg");
-      this.load.image("oro_1", "assets/cards/oro_1.jpeg");
-      this.load.image("oro_2", "assets/cards/oro_2.jpeg");
-      this.load.image("oro_3", "assets/cards/oro_3.jpeg");
-      this.load.image("oro_4", "assets/cards/oro_4.jpeg");
-      this.load.image("oro_5", "assets/cards/oro_5.jpeg");
-      this.load.image("oro_6", "assets/cards/oro_6.jpeg");
-      this.load.image("oro_7", "assets/cards/oro_7.jpeg");
-      this.load.image("oro_10", "assets/cards/oro_10.jpeg");
-      this.load.image("oro_11", "assets/cards/oro_11.jpeg");
-      this.load.image("oro_12", "assets/cards/oro_12.jpeg");
-      this.load.image("copa_1", "assets/cards/copa_1.jpeg");
-      this.load.image("copa_2", "assets/cards/copa_2.jpeg");
-      this.load.image("copa_3", "assets/cards/copa_3.jpeg");
-      this.load.image("copa_4", "assets/cards/copa_4.jpeg");
-      this.load.image("copa_5", "assets/cards/copa_5.jpeg");
-      this.load.image("copa_6", "assets/cards/copa_6.jpeg");
-      this.load.image("copa_7", "assets/cards/copa_7.jpeg");
-      this.load.image("copa_10", "assets/cards/copa_10.jpeg");
-      this.load.image("copa_11", "assets/cards/copa_11.jpeg");
-      this.load.image("copa_12", "assets/cards/copa_12.jpeg");
+      this.load.image(clave, ruta);
     }
   }
-
+  
   this.load.image('carta_reverso', 'assets/cards/reverso.jpeg');
   this.load.image('fondo_mesa', 'assets/ui/fondo_mesa.jpeg');
 }
@@ -124,41 +82,27 @@ preload() {
 
     this.cameras.main.fadeIn(300, 0, 0, 0);
 
-    // Arrancar primera mano
     this.logic.iniciarMano();
   }
 
-  // ────────────────────────────────────────────────────────
-  // FONDO
-  // ────────────────────────────────────────────────────────
-
 _crearFondo() {
-  // 1. Fondo negro base
   this.add.rectangle(0, 0, W, H, 0x0d1a0d).setOrigin(0);
 
-  // 2. Imagen de la mesa
   if (this.textures.exists('fondo_mesa')) {
     this.add.image(W / 2, H / 2, 'fondo_mesa')
       .setDisplaySize(W, H)
-      .setDepth(0); // Forzamos que esté al fondo
+      .setDepth(0);
   } else {
-    // Si la imagen falla, dibujamos el verde
     this.add.rectangle(MESA_X, H / 2, DER_X - IZQ_W, H, 0x0d2b0d, 0.85).setOrigin(0.5);
   }
 
-  // 3. Paneles laterales (estos van ARRIBA del fondo, por eso van después)
   this.add.rectangle(0, 0, IZQ_W, H, 0x080402, 0.88).setOrigin(0);
   this.add.rectangle(DER_X, 0, DER_W, H, 0x080402, 0.88).setOrigin(0);
 }
 
-  // ────────────────────────────────────────────────────────
-  // PANEL IZQUIERDO — Info + puntos
-  // ────────────────────────────────────────────────────────
-
   _crearPanelIzquierdo() {
     const cx = IZQ_W / 2;
 
-    // Nombre del jefe
     this.add.text(cx, 22, this.ia.getNombre(), {
       fontSize: '18px', color: '#EF9F27', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace",
@@ -172,7 +116,6 @@ _crearFondo() {
 
     this.add.rectangle(cx, 56, IZQ_W - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
 
-    // Puntos
     this._lblPtsRival = this.add.text(cx, 74, 'Rival: 0', {
       fontSize: '13px', color: '#e8c88a', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace"
@@ -190,7 +133,6 @@ _crearFondo() {
 
     this.add.rectangle(cx, 126, IZQ_W - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
 
-    // Bazas
     this.add.text(cx, 144, 'BAZAS', {
       fontSize: '9px', color: '#7a5030', letterSpacing: 3,
       fontFamily: "'Chakra Petch', monospace"
@@ -205,7 +147,6 @@ _crearFondo() {
 
     this.add.rectangle(cx, 184, IZQ_W - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
 
-    // Aura
     this.add.text(cx, 200, 'AURA', {
       fontSize: '9px', color: '#7a5030', letterSpacing: 3,
       fontFamily: "'Chakra Petch', monospace"
@@ -217,30 +158,21 @@ _crearFondo() {
     }).setOrigin(0.5);
   }
 
-  // ────────────────────────────────────────────────────────
-  // PANEL DERECHO — Botones de acción
-  // ────────────────────────────────────────────────────────
-
   _crearPanelDerecho() {
     const cx  = DER_X + DER_W / 2;
     const bW  = DER_W - 18;
     const bH  = 36;
     const gap = 7;
 
-    // Definición de botones con sus posiciones Y
     const defs = [
-      // ─ Truco ─
       { id:'truco',      label:'TRUCO',       y:50  },
       { id:'retruco',    label:'RETRUCO',     y:50  + bH + gap },
       { id:'valecuatro', label:'VALE CUATRO', y:50  + (bH + gap) * 2 },
-      // ─ Envido ─
       { id:'envido', label:'ENVIDO',    y:210 },
       { id:'real',   label:'REAL ENV',  y:210 + bH + gap },
       { id:'falta',  label:'FALTA ENV', y:210 + (bH + gap) * 2 },
-      // ─ Respuestas ─
       { id:'quiero',   label:'✓ QUIERO',    y:370, col:0x1a3a1a, brd:0x34a853 },
       { id:'noquiero', label:'✗ NO QUIERO', y:370 + bH + gap, col:0x3a1a1a, brd:0xe24b4a },
-      // ─ Mazo ─
       { id:'mazo', label:'IR AL MAZO', y:490, col:0x1a1a1a, brd:0x555555 },
     ];
 
@@ -266,7 +198,6 @@ _crearFondo() {
       this._panelAcciones[d.id] = { bg, lbl };
     }
 
-    // Títulos de sección
     this.add.text(cx, 32,  'TRUCO',  { fontSize:'9px', color:'#7a5030', letterSpacing:3, fontFamily:"'Chakra Petch', monospace" }).setOrigin(0.5);
     this.add.text(cx, 192, 'ENVIDO', { fontSize:'9px', color:'#7a5030', letterSpacing:3, fontFamily:"'Chakra Petch', monospace" }).setOrigin(0.5);
     this.add.text(cx, 352, 'CANTOS', { fontSize:'9px', color:'#7a5030', letterSpacing:3, fontFamily:"'Chakra Petch', monospace" }).setOrigin(0.5);
@@ -327,12 +258,7 @@ _crearFondo() {
     b.lbl.setVisible(visible);
   }
 
-  // ────────────────────────────────────────────────────────
-  // LABELS DE ESTADO Y FRASE
-  // ────────────────────────────────────────────────────────
-
   _crearLabelEstado() {
-    // Label de estado centrado en la mesa (centro vertical)
     this._lblEstado = this.add.text(MESA_X, H / 2, '', {
       fontSize: '13px', color: '#a08060',
       fontFamily: "'Chakra Petch', monospace",
@@ -353,12 +279,7 @@ _crearFondo() {
     this.tweens.add({ targets: this._labelFrase, alpha: 0, delay: 2500, duration: 700 });
   }
 
-  // ────────────────────────────────────────────────────────
-  // DIBUJAR CARTAS EN MANO
-  // ────────────────────────────────────────────────────────
-
   _dibujarManoJugador(mano) {
-    // Destruir contenedores anteriores
     this._nodosCartasJugador.forEach(c => c.destroy());
     this._nodosCartasJugador = [];
 
@@ -374,11 +295,9 @@ _crearFondo() {
       const key       = carta.clave();
 
       if (this.textures.exists(key)) {
-        // Imagen real
         const img = this.add.image(0, 0, key).setDisplaySize(CARD_W, CARD_H);
         container.add(img);
       } else {
-        // Placeholder con colores por palo
         const cols = { 0:0xc0392b, 1:0x2c3e50, 2:0xf39c12, 3:0x8e44ad };
         const rect = this.add.rectangle(0, 0, CARD_W, CARD_H, cols[carta.palo] ?? 0x555555)
           .setStrokeStyle(1.5, 0xffffff, 0.5);
@@ -391,7 +310,6 @@ _crearFondo() {
         container.add([rect, numLbl, paloLbl]);
       }
 
-      // Interactividad sobre el container
       container.setSize(CARD_W, CARD_H);
       container.setInteractive({ useHandCursor: true });
 
@@ -439,10 +357,6 @@ _crearFondo() {
     }
   }
 
-  // ────────────────────────────────────────────────────────
-  // CARTAS EN MESA
-  // ────────────────────────────────────────────────────────
-
   _mostrarCartaMesa(carta, esJugador) {
     const x   = esJugador ? MESA_X + 60 : MESA_X - 60;
     const y   = H / 2;
@@ -477,10 +391,6 @@ _crearFondo() {
     if (this._cartaEnMesaRival)   { this._cartaEnMesaRival.destroy();   this._cartaEnMesaRival   = null; }
   }
 
-  // ────────────────────────────────────────────────────────
-  // INDICADORES DE BAZAS
-  // ────────────────────────────────────────────────────────
-
   _actualizarBazas() {
     const bazas = this.logic.bazas;
     this._bazaIndicadores.forEach((ind, i) => {
@@ -489,10 +399,6 @@ _crearFondo() {
       ind.setFillStyle(col);
     });
   }
-
-  // ────────────────────────────────────────────────────────
-  // HANDLERS DE EVENTOS
-  // ────────────────────────────────────────────────────────
 
   _onCartasRepartidas(manoJ, manoR) {
     this._limpiarMesa();
@@ -571,33 +477,42 @@ _crearFondo() {
   }
 
   _onManoTerminada(ganador) {
+    if (this.logic.puntosJugador >= this.puntosParaGanar || 
+      this.logic.puntosRival >= this.puntosParaGanar) {
+      return; 
+    }
     const msg = ganador === 'jugador' ? '¡Ganaste la mano!' : 'Ganó el rival.';
     this._lblEstado.setText(msg);
     this.time.delayedCall(2200, () => this.logic.iniciarMano());
   }
-
+  
   _onPartidaTerminada(ganador) {
-    if (ganador === 'jugador') {
-      this._mostrarFrase(this.ia.fraseDerrota());
-      this.time.delayedCall(2500, () => {
+    const esJugador = ganador === 'jugador';
+
+    this._mostrarAnuncioFinal(esJugador ? '¡GANASTE!' : '¡PERDISTE!');
+
+    this.time.delayedCall(500, () => {
+      this._mostrarFrase(esJugador ? this.ia.fraseDerrota() : this.ia.fraseVictoria());
+    });
+
+    if (esJugador) {
+      const ORDEN = ['tierra_del_fuego', 'santa_cruz', 'buenos_aires', 'santa_fe', 'cordoba', 'san_juan', 'salta'];
+      const indexActual = ORDEN.indexOf(this.provinciaId);
+      const siguienteProvincia = ORDEN[indexActual + 1] || this.provinciaId;
+
+      this.time.delayedCall(4000, () => {
         this.scene.start('AuraShop', {
-          aura:            this.aura,
-          recompensaAura:  this.recompensaAura,
-          provinciaId:     this.provinciaId,
-          powerupsActivos: this.powerupsActivos
+          aura: this.aura,
+          recompensaAura: this.recompensaAura,
+          provinciaId: this.provinciaId,
+          powerupsActivos: this.powerupsActivos,
+          provinciasDesbloq: [...this.provinciasDesbloq, siguienteProvincia],
+          provinciaActual: siguienteProvincia
         });
       });
     } else {
-      this._mostrarFrase(this.ia.fraseVictoria());
-      this.time.delayedCall(2500, () => {
-        this.scene.start('GameBoard', {
-          provinciaId:     this.provinciaId,
-          jefeNombre:      this.jefeNombre,
-          puntosParaGanar: this.puntosParaGanar,
-          recompensaAura:  this.recompensaAura,
-          powerupsActivos: this.powerupsActivos,
-          aura:            this.aura
-        });
+      this.time.delayedCall(4000, () => {
+        this.scene.restart();
       });
     }
   }
@@ -606,7 +521,6 @@ _crearFondo() {
     this.aura += cantidad;
     this._lblAura.setText(`🪙 ${this.aura}`);
 
-    // Animación +Aura flotante
     const lbl = this.add.text(IZQ_W / 2, 240, `+${cantidad}`, {
       fontSize: '20px', color: '#EF9F27', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace"
@@ -619,10 +533,6 @@ _crearFondo() {
       onComplete: () => lbl.destroy()
     });
   }
-
-  // ────────────────────────────────────────────────────────
-  // TURNO IA
-  // ────────────────────────────────────────────────────────
 
   _turnoIA() {
     if (this.logic.estado !== EstadoJuego.TURNO_RIVAL) return;
@@ -645,6 +555,44 @@ _crearFondo() {
         break;
     }
     this._actualizarBotones();
+  }
+  
+  _mostrarAnuncioFinal(texto) {
+    const cx = W / 2;
+    const cy = H / 2;
+
+    const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.7)
+      .setOrigin(0)
+      .setDepth(100)
+      .setAlpha(0);
+
+    const mensaje = this.add.text(cx, cy, texto, {
+      fontSize: '84px',
+      color: texto.includes('GANASTE') ? '#EF9F27' : '#e24b4a',
+      fontFamily: "'Press Start 2P', monospace",
+      stroke: '#000000',
+      strokeThickness: 8,
+      shadow: { offsetX: 4, offsetY: 4, color: '#000', blur: 0, fill: true }
+    }).setOrigin(0.5).setDepth(101).setScale(0.5).setAlpha(0);
+
+    this.tweens.add({ targets: overlay, alpha: 1, duration: 400 });
+    
+    this.tweens.add({
+      targets: mensaje,
+      alpha: 1,
+      scale: 1.1,
+      duration: 600,
+      ease: 'Back.easeOut',
+      onComplete: () => {
+        this.tweens.add({
+          targets: mensaje,
+          scale: 1,
+          duration: 1000,
+          yoyo: true,
+          repeat: -1
+        });
+      }
+    });
   }
 
   update() {}
