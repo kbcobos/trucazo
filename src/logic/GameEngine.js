@@ -1,11 +1,12 @@
 import { Carta, Palo } from "./Carta.js";
 import { EstadoJuego } from "./GameConstants.js";
 import { TrucoManager } from "./TrucoManager.js";
-
+import { EnvidoManager } from "./EnvidoManager.js";
 export class GameEngine {
   constructor(puntosParaGanar = 15) {
     this.puntosParaGanar = puntosParaGanar;
     this.trucoManager = new TrucoManager();
+    this.envidoManager = new EnvidoManager(this.puntosParaGanar);
 
     // Estado global
     this.estado = EstadoJuego.ESPERANDO;
@@ -232,6 +233,189 @@ _comprobarGanadorPartida() {
   }
 
   return false;
+}
+
+//===============================//
+
+            // TRUCO //
+
+//===============================//
+cantarTruco(quien) {
+  const res = this.truco.cantar(quien);
+
+  if (res.error) return;
+
+  this.estado = EstadoJuego.ESPERANDO_RESPUESTA_TRUCO;
+
+  this.emit('trucoCantado', res.nivel, quien);
+}
+
+responderTruco(respuesta) {
+  const res = this.truco.responder(respuesta);
+
+  if (res.accion === 'continuar') {
+    this.puntosTrucoEnJuego = res.puntos;
+
+    this.estado = this.turnoJugador
+      ? EstadoJuego.TURNO_JUGADOR
+      : EstadoJuego.TURNO_RIVAL;
+  }
+
+  if (res.accion === 'terminar_mano') {
+    this._sumarPuntos(res.ganador, res.puntos);
+    this._resolverMano();
+  }
+}
+
+puedeCantarTruco(quien) {
+
+  //esperando respuesta
+  if (
+    this.estado ===
+    EstadoJuego.ESPERANDO_RESPUESTA_TRUCO
+  ) {
+    return false;
+  }
+
+  //vale cuatro ya cantado
+  if (
+    this.truco.nivel === 3
+  ) {
+    return false;
+  }
+
+  //mismo jugador subiendo su propio canto
+  if (
+    this.truco.quienCanto === quien &&
+    this.truco.estaPendiente()
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+//===============================//
+
+            // ENVIDO //
+
+//===============================//
+
+cantarEnvido(tipo, quien) {
+
+  if (!this.puedeCantarEnvido(tipo)) {
+
+    console.warn(
+      'No se puede cantar envido'
+    );
+
+    return;
+  }
+
+  const res =
+    this.envido.cantar(
+      tipo,
+      quien
+    );
+
+  if (res.error) {
+
+    console.warn(res.error);
+
+    return;
+  }
+
+  this.estado =
+    EstadoJuego.ESPERANDO_RESPUESTA_ENVIDO;
+
+  this.emit(
+    'envidoCantado',
+    res
+  );
+}
+
+responderEnvido(respuesta) {
+
+  const res =
+    this.envido.responder(
+      respuesta,
+      this.manoJugador,
+      this.manoRival
+    );
+
+  //NO QUIERO
+  if (res.accion === 'rechazado') {
+
+    this._sumarPuntos(
+      res.ganador,
+      res.puntos
+    );
+
+    this.emit(
+      'envidoRechazado',
+      res
+    );
+
+    this._comprobarGanadorPartida();
+
+    return;
+  }
+
+  //QUIERO
+  let puntos = res.puntos;
+
+  // falta envido
+  if (puntos === 'falta') {
+
+    puntos =
+      this.envido.calcularFaltaEnvido(
+        this.puntosJugador,
+        this.puntosRival
+      );
+  }
+
+  this._sumarPuntos(
+    res.ganador,
+    puntos
+  );
+
+  this.emit(
+    'envidoResuelto',
+    res
+  );
+
+  this.estado = this.turnoJugador
+    ? EstadoJuego.TURNO_JUGADOR
+    : EstadoJuego.TURNO_RIVAL;
+
+  this._comprobarGanadorPartida();
+}
+
+puedeCantarEnvido(tipo) {
+
+  // ya pasó primera baza
+  if (this.bazas.length > 0) {
+    return false;
+  }
+
+  // truco aceptado
+  if (
+    this.truco &&
+    this.truco.respuesta ===
+      Respuesta.QUIERO
+  ) {
+    return false;
+  }
+
+  // reglas internas del envido
+  return this.envido.puedeCantar(tipo);
+}
+
+_sumarPuntos(quien, puntos) {
+  if (quien === 'jugador') this.puntosJugador += puntos;
+  else this.puntosRival += puntos;
+
+  this.emit('puntosActualizados', this.puntosJugador, this.puntosRival);
 }
 
 }
