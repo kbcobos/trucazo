@@ -7,52 +7,186 @@ export class TrucoManager {
   }
 
   reset() {
-    this.nivel = LlamadaTruco.NINGUNA;
-    this.quienCanto = null;
-    this.respuesta = Respuesta.PENDIENTE;
-  }
+
+  this.nivel = LlamadaTruco.NINGUNA;
+
+  this.quienCanto = null;
+
+  this.respuesta = Respuesta.PENDIENTE;
+
+  this.cantos = [];
+
+  this.puntosEnJuego = 1;
+}
 
   // CANTAR TRUCO
-  cantar(quien) {
-    const siguiente = this._siguienteNivel();
+  cantar(tipo, quien) {
 
-    if (siguiente === null) {
-      return { error: 'No se puede subir más el truco' };
-    }
+  const puede =
+    this.puedeCantar(
+      tipo,
+      quien
+    );
 
-    if (this.quienCanto === quien && this.respuesta === Respuesta.PENDIENTE) {
-      return { error: 'No podés subir tu propio canto' };
-    }
-
-    this.nivel = siguiente;
-    this.quienCanto = quien;
-    this.respuesta = Respuesta.PENDIENTE;
+  if (!puede) {
 
     return {
-      ok: true,
-      nivel: this.nivel,
-      quien
+      error:
+        'No se puede cantar eso ahora'
     };
   }
+
+  this.nivel = tipo;
+
+  this.quienCanto = quien;
+
+  this.respuesta =
+    Respuesta.PENDIENTE;
+
+  this.cantos.push({
+    tipo,
+    quien
+  });
+
+  this._recalcularPuntos();
+
+  return {
+
+    ok: true,
+
+    nivel: this.nivel,
+
+    quien,
+
+    puntos:
+      this.puntosEnJuego,
+
+    cantos:
+      [...this.cantos]
+  };
+}
+
+puedeCantar(tipo, quien) {
+
+  // no se puede subir más
+  if (
+    this.nivel ===
+    LlamadaTruco.VALE_CUATRO
+  ) {
+    return false;
+  }
+
+  // no podés cantar tu propio
+  // truco pendiente
+  if (
+    this.quienCanto === quien &&
+    this.estaPendiente()
+  ) {
+    return false;
+  }
+
+  // ========================
+  // TRUCO
+  // ========================
+
+  if (
+    tipo === LlamadaTruco.TRUCO
+  ) {
+
+    return (
+      this.nivel ===
+      LlamadaTruco.NINGUNA
+    );
+  }
+
+  // ========================
+  // RETRUCO
+  // ========================
+
+  if (
+    tipo === LlamadaTruco.RETRUCO
+  ) {
+
+    return (
+      this.nivel ===
+      LlamadaTruco.TRUCO &&
+      this.respuesta ===
+        Respuesta.QUIERO
+    );
+  }
+
+  // ========================
+  // VALE CUATRO
+  // ========================
+
+  if (
+    tipo ===
+    LlamadaTruco.VALE_CUATRO
+  ) {
+
+    return (
+      this.nivel ===
+      LlamadaTruco.RETRUCO &&
+      this.respuesta ===
+        Respuesta.QUIERO
+    );
+  }
+
+  return false;
+}
 
   // RESPONDER
-  responder(respuesta) {
-    this.respuesta = respuesta;
+ responder(respuesta) {
 
-    if (respuesta === Respuesta.QUIERO) {
-      return {
-        accion: 'continuar',
-        puntos: this._puntosQuiero()
-      };
-    }
+  // no hay nada pendiente
+  if (!this.estaPendiente()) {
 
-    // NO QUIERO
     return {
-      accion: 'terminar_mano',
-      ganador: this.quienCanto,
-      puntos: this._puntosNoQuiero()
+      error:
+        'No hay un truco pendiente'
     };
   }
+
+  this.respuesta = respuesta;
+
+  // ========================
+  // QUIERO
+  // ========================
+
+  if (
+    respuesta ===
+    Respuesta.QUIERO
+  ) {
+
+    return {
+
+      accion: 'continuar',
+
+      nivel: this.nivel,
+
+      puntos:
+        this.puntosEnJuego
+    };
+  }
+
+  // ========================
+  // NO QUIERO
+  // ========================
+
+  return {
+
+    accion: 'terminar_mano',
+
+    ganador:
+      this.quienCanto,
+
+    puntos:
+      this._puntosNoQuiero(),
+
+    nivel:
+      this.nivel
+  };
+}
 
   // NIVEL SIGUIENTE
   _siguienteNivel() {
@@ -84,8 +218,43 @@ export class TrucoManager {
     }[this.nivel] ?? 1;
   }
 
+  _recalcularPuntos() {
+
+  this.puntosEnJuego = {
+
+    [LlamadaTruco.NINGUNA]: 1,
+
+    [LlamadaTruco.TRUCO]: 2,
+
+    [LlamadaTruco.RETRUCO]: 3,
+
+    [LlamadaTruco.VALE_CUATRO]: 4
+
+  }[this.nivel] ?? 1;
+}
+
   // UTIL
+  fueCantado() {
+    return this.nivel !== LlamadaTruco.NINGUNA;
+  }
+
   estaPendiente() {
     return this.respuesta === Respuesta.PENDIENTE;
   }
+
+  getEstado() {
+
+  return {
+
+    nivel: this.nivel,
+
+    quienCanto: this.quienCanto,
+
+    respuesta: this.respuesta,
+
+    cantos: [...this.cantos],
+
+    puntosEnJuego: this.puntosEnJuego
+  };
+}
 }

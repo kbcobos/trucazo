@@ -1,42 +1,17 @@
-import { Carta, Palo } from "./Carta.js";
 import { EstadoJuego } from "./GameConstants.js";
-import { TrucoManager } from "./TrucoManager.js";
-import { EnvidoManager } from "./EnvidoManager.js";
+import { Mano } from "./Mano.js";
 export class GameEngine {
   constructor(puntosParaGanar = 15) {
     this.puntosParaGanar = puntosParaGanar;
-    this.trucoManager = new TrucoManager();
-    this.envidoManager = new EnvidoManager(this.puntosParaGanar);
-
-    // Estado global
-    this.estado = EstadoJuego.ESPERANDO;
-
     // Puntaje
     this.puntosJugador = 0;
     this.puntosRival = 0;
-
-    // Mano actual
-    this.manoJugador = [];
-    this.manoRival = [];
-    this.bazas = [];
-
-    this.cartaJugadaJugador = null;
-    this.cartaJugadaRival = null;
-
-    // Turnos
-    this.turnoJugador = true;
-
-    // Puntos en juego
-    this.puntosTrucoEnJuego = 1;
-    this.puntosEnvidoEnJuego = 0;
-
     // Extras
     this.powerupsActivos = [];
-    this.auraGanadaMano = 0;
-
     // Eventos
     this._listeners = {};
-
+    // Mano actual
+    this.mano = 'jugador';
     }
 
     on(evento, callback) {
@@ -49,174 +24,177 @@ export class GameEngine {
         (this._listeners[evento] || []).forEach(cb => cb(...args));
     }
     
-    _crearMazo() {
-        const numeros = [1,2,3,4,5,6,7,10,11,12];
-        const mazo = [];
-
-        for (const palo of [Palo.ESPADA, Palo.BASTO, Palo.ORO, Palo.COPA]) {
-        for (const num of numeros) {
-            mazo.push(new Carta(num, palo));
-        }
-        }
-
-        return mazo;
-    }
-
-    _mezclar(mazo) {
-        for (let i = mazo.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [mazo[i], mazo[j]] = [mazo[j], mazo[i]];
-        }
-        return mazo;
-    }
-
     iniciarMano() {
-    this.manoJugador = [];
-    this.manoRival = [];
-    this.bazas = [];
-    this.truco.reset();
-    this.cartaJugadaJugador = null;
-    this.cartaJugadaRival = null;
 
-    this.puntosTrucoEnJuego = 1;
-    this.puntosEnvidoEnJuego = 0;
-    this.auraGanadaMano = 0;
+    this.manoActual =
+      new Mano({
+        mano: this.mano,
+        puntosJugador: this.puntosJugador,
+        puntosRival: this.puntosRival,
+        puntosParaGanar: this.puntosParaGanar
+      });
 
-    const mazo = this._mezclar(this._crearMazo());
+      this._registrarEventosMano();
 
-    for (let i = 0; i < 3; i++) {
-      this.manoJugador.push(mazo[i]);
-      this.manoRival.push(mazo[i + 3]);
+      this.manoActual.iniciar();
+      
+}
+
+_registrarEventosMano() {
+
+  this.manoActual.on(
+    'cartasRepartidas',
+    (j, r) => {
+
+      this.emit(
+        'cartasRepartidas',
+        j,
+        r
+      );
     }
+  );
 
-    this.estado = EstadoJuego.TURNO_JUGADOR;
+  this.manoActual.on(
+    'manoIniciada',
+    (data) => {
 
-    this.emit('cartasRepartidas', [...this.manoJugador], [...this.manoRival]);
+      this.emit(
+        'manoIniciada',
+        data
+      );
+    }
+  );
+
+  this.manoActual.on(
+  'cartaJugada',
+  (carta, esJugador) => {
+
+    this.emit(
+      'cartaJugada',
+      carta,
+      esJugador
+    );
   }
+);
+this.manoActual.on(
+  'bazaResuelta',
+  (ganador, puntos) => {
 
-    jugarCarta(carta, esJugador) {
-    if (esJugador) {
-      if (!this.turnoJugador) return;
-
-      const idx = this.manoJugador.findIndex(c => c.esIgual(carta));
-      if (idx === -1) return;
-
-      this.manoJugador.splice(idx, 1);
-      this.cartaJugadaJugador = carta;
-
-      this.turnoJugador = false;
-      this.estado = EstadoJuego.TURNO_RIVAL;
-
-    } else {
-      const idx = this.manoRival.findIndex(c => c.esIgual(carta));
-      if (idx !== -1) this.manoRival.splice(idx, 1);
-
-      this.cartaJugadaRival = carta;
-
-      this.turnoJugador = true;
-      this.estado = EstadoJuego.TURNO_JUGADOR;
-    }
-
-    this.emit('cartaJugada', carta, esJugador);
-
-    if (this.cartaJugadaJugador && this.cartaJugadaRival) {
-      this._resolverBaza();
-    }
+    this.emit(
+      'bazaResuelta',
+      ganador,
+      puntos
+    );
   }
+);
 
-    _resolverBaza() {
-    this.estado = EstadoJuego.RESOLVIENDO_BAZA;
+this.manoActual.on(
+  'manoTerminada',
+  (data) => {
 
-    const ganador = this._compararCartas(
-      this.cartaJugadaJugador,
-      this.cartaJugadaRival
+    const {
+      ganador,
+      puntos
+    } = data;
+
+    this._sumarPuntos(
+      ganador,
+      puntos
     );
 
-    this.bazas.push({
-      jugador: this.cartaJugadaJugador,
-      rival: this.cartaJugadaRival,
+    // alternar mano
+    this.mano =
+      this.mano === 'jugador'
+        ? 'rival'
+        : 'jugador';
+
+    this.emit(
+      'manoTerminada',
       ganador
-    });
-
-    this.emit('bazaResuelta', ganador, this.puntosTrucoEnJuego);
-
-    if (ganador === 'jugador') {
-      this.auraGanadaMano += 10;
-    }
-
-    this.cartaJugadaJugador = null;
-    this.cartaJugadaRival = null;
-
-    if (this.bazas.length === 3 || this._hayGanadorAnticipado()) {
-      this._resolverMano();
-    } else {
-      this.turnoJugador = ganador !== 'rival';
-
-      this.estado = this.turnoJugador
-        ? EstadoJuego.TURNO_JUGADOR
-        : EstadoJuego.TURNO_RIVAL;
-    }
-  }
-
-    _compararCartas(cJ, cR) {
-    if (cJ.valorTruco < cR.valorTruco) return 'jugador';
-    if (cJ.valorTruco > cR.valorTruco) return 'rival';
-    return 'empate';
-  }
-
-    _resolverMano() {
-    const ganador = this._determinarGanadorMano();
-
-    this.estado = EstadoJuego.FIN_MANO;
-
-    const puntos = this.puntosTrucoEnJuego;
-
-    if (ganador === 'jugador') {
-      this.puntosJugador += puntos;
-      this.emit('auraGanada', this.auraGanadaMano);
-    } else {
-      this.puntosRival += puntos;
-    }
-
-    this.emit('puntosActualizados', this.puntosJugador, this.puntosRival);
-    this.emit('manoTerminada', ganador);
+    );
 
     this._comprobarGanadorPartida();
   }
+);
 
-  _hayGanadorAnticipado() {
-  let wJ = 0, wR = 0;
+this.manoActual.on(
+  'trucoCantado',
+  (data) => {
 
-  for (const b of this.bazas) {
-    if (b.ganador === 'jugador') wJ++;
-    else if (b.ganador === 'rival') wR++;
+    this.emit(
+      'trucoCantado',
+      data
+    );
   }
+);
 
-  return wJ >= 2 || wR >= 2;
+this.manoActual.on(
+  'trucoRespondido',
+  (data) => {
+
+    this.emit(
+      'trucoRespondido',
+      data
+    );
+  }
+);
+
+this.manoActual.on(
+  'envidoCantado',
+  (data) => {
+
+    this.emit(
+      'envidoCantado',
+      data
+    );
+  }
+);
+
+this.manoActual.on(
+  'envidoResuelto',
+  (data) => {
+
+    this.emit(
+      'envidoResuelto',
+      data
+    );
+  }
+);
+
+this.manoActual.on(
+  'envidoRechazado',
+  (data) => {
+
+    this.emit(
+      'envidoRechazado',
+      data
+    );
+  }
+);
+
+this.manoActual.on(
+  'jugadorFueAlMazo',
+  (data) => {
+
+    this.emit(
+      'jugadorFueAlMazo',
+      data
+    );
+  }
+);
+
 }
 
-_determinarGanadorMano() {
-  let wJ = 0, wR = 0;
-  let primerGanador = '';
+jugarCarta(carta, esJugador) {
 
-  for (let i = 0; i < this.bazas.length; i++) {
-    const b = this.bazas[i];
-
-    if (b.ganador === 'jugador') wJ++;
-    else if (b.ganador === 'rival') wR++;
-
-    if (i === 0 && b.ganador !== 'empate') {
-      primerGanador = b.ganador;
-    }
+  if (!this.manoActual) {
+    return;
   }
 
-  if (wJ >= 2) return 'jugador';
-  if (wR >= 2) return 'rival';
-
-  if (wJ === 1 && primerGanador === 'jugador') return 'jugador';
-  if (wR === 1 && primerGanador === 'rival') return 'rival';
-
-  return 'jugador';
+  this.manoActual.jugarCarta(
+    carta,
+    esJugador
+  );
 }
 
 _comprobarGanadorPartida() {
@@ -235,187 +213,129 @@ _comprobarGanadorPartida() {
   return false;
 }
 
-//===============================//
-
-            // TRUCO //
-
-//===============================//
 cantarTruco(quien) {
-  const res = this.truco.cantar(quien);
-
-  if (res.error) return;
-
-  this.estado = EstadoJuego.ESPERANDO_RESPUESTA_TRUCO;
-
-  this.emit('trucoCantado', res.nivel, quien);
+  return this.manoActual.cantarTruco(quien);
 }
 
 responderTruco(respuesta) {
-  const res = this.truco.responder(respuesta);
-
-  if (res.accion === 'continuar') {
-    this.puntosTrucoEnJuego = res.puntos;
-
-    this.estado = this.turnoJugador
-      ? EstadoJuego.TURNO_JUGADOR
-      : EstadoJuego.TURNO_RIVAL;
-  }
-
-  if (res.accion === 'terminar_mano') {
-    this._sumarPuntos(res.ganador, res.puntos);
-    this._resolverMano();
-  }
+  return this.manoActual.responderTruco(respuesta);
 }
-
-puedeCantarTruco(quien) {
-
-  //esperando respuesta
-  if (
-    this.estado ===
-    EstadoJuego.ESPERANDO_RESPUESTA_TRUCO
-  ) {
-    return false;
-  }
-
-  //vale cuatro ya cantado
-  if (
-    this.truco.nivel === 3
-  ) {
-    return false;
-  }
-
-  //mismo jugador subiendo su propio canto
-  if (
-    this.truco.quienCanto === quien &&
-    this.truco.estaPendiente()
-  ) {
-    return false;
-  }
-
-  return true;
-}
-
-//===============================//
-
-            // ENVIDO //
-
-//===============================//
 
 cantarEnvido(tipo, quien) {
-
-  if (!this.puedeCantarEnvido(tipo)) {
-
-    console.warn(
-      'No se puede cantar envido'
-    );
-
-    return;
-  }
-
-  const res =
-    this.envido.cantar(
-      tipo,
-      quien
-    );
-
-  if (res.error) {
-
-    console.warn(res.error);
-
-    return;
-  }
-
-  this.estado =
-    EstadoJuego.ESPERANDO_RESPUESTA_ENVIDO;
-
-  this.emit(
-    'envidoCantado',
-    res
-  );
+  return this.manoActual.cantarEnvido(tipo, quien);
 }
 
 responderEnvido(respuesta) {
 
-  const res =
-    this.envido.responder(
-      respuesta,
-      this.manoJugador,
-      this.manoRival
-    );
-
-  //NO QUIERO
-  if (res.accion === 'rechazado') {
-
-    this._sumarPuntos(
-      res.ganador,
-      res.puntos
-    );
-
-    this.emit(
-      'envidoRechazado',
-      res
-    );
-
-    this._comprobarGanadorPartida();
-
+  if (!this.manoActual) {
     return;
   }
 
-  //QUIERO
-  let puntos = res.puntos;
-
-  // falta envido
-  if (puntos === 'falta') {
-
-    puntos =
-      this.envido.calcularFaltaEnvido(
-        this.puntosJugador,
-        this.puntosRival
-      );
-  }
-
-  this._sumarPuntos(
-    res.ganador,
-    puntos
+  return this.manoActual.responderEnvido(
+    respuesta
   );
-
-  this.emit(
-    'envidoResuelto',
-    res
-  );
-
-  this.estado = this.turnoJugador
-    ? EstadoJuego.TURNO_JUGADOR
-    : EstadoJuego.TURNO_RIVAL;
-
-  this._comprobarGanadorPartida();
 }
 
-puedeCantarEnvido(tipo) {
+irAlMazo(quien) {
 
-  // ya pasó primera baza
-  if (this.bazas.length > 0) {
-    return false;
-  }
+  if (!this.manoActual) return;
 
-  // truco aceptado
-  if (
-    this.truco &&
-    this.truco.respuesta ===
-      Respuesta.QUIERO
-  ) {
-    return false;
-  }
-
-  // reglas internas del envido
-  return this.envido.puedeCantar(tipo);
+  this.manoActual.irAlMazo(quien);
 }
 
 _sumarPuntos(quien, puntos) {
-  if (quien === 'jugador') this.puntosJugador += puntos;
-  else this.puntosRival += puntos;
 
-  this.emit('puntosActualizados', this.puntosJugador, this.puntosRival);
+  if (quien === 'jugador') {
+    this.puntosJugador += puntos;
+  }
+
+  else {
+    this.puntosRival += puntos;
+  }
+
+  // sincronizar mano actual
+  if (this.manoActual) {
+
+    this.manoActual.puntosJugador =
+      this.puntosJugador;
+
+    this.manoActual.puntosRival =
+      this.puntosRival;
+  }
+
+  this.emit(
+    'puntosActualizados',
+    this.puntosJugador,
+    this.puntosRival
+  );
+}
+
+// =========================
+// GETTERS
+// =========================
+
+get estado() {
+
+  if (!this.manoActual) {
+    return EstadoJuego.ESPERANDO;
+  }
+
+  return this.manoActual.estado;
+}
+
+get turnoJugador() {
+  return this.manoActual?.turnoJugador;
+}
+
+get manoJugador() {
+  return this.manoActual?.manoJugador ?? [];
+}
+
+get manoRival() {
+  return this.manoActual?.manoRival ?? [];
+}
+
+get bazas() {
+  return this.manoActual?.bazas ?? [];
+}
+
+get puntosTrucoEnJuego() {
+  return this.manoActual?.puntosTrucoEnJuego ?? 1;
+}
+
+get truco() {
+  return this.manoActual?.trucoManager;
+}
+
+get envido() {
+  return this.manoActual?.envidoManager;
+}
+get puedeJugar() {
+  return this.estado === EstadoJuego.TURNO_JUGADOR;
+}
+get terminoPartida() {
+  return this.estado === EstadoJuego.FIN_PARTIDA;
+}
+
+toJSON() {
+
+  return {
+
+    puntosJugador:
+      this.puntosJugador,
+
+    puntosRival:
+      this.puntosRival,
+
+    mano:
+      this.mano,
+
+    estado:
+      this.estado,
+
+    manoActual:
+      this.manoActual?.toJSON()
+  };
 }
 
 }
