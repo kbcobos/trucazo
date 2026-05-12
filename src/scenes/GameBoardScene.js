@@ -1,9 +1,7 @@
 import Phaser from 'phaser';
-import {
-  TrucoLogic, EstadoJuego,
-  LlamadaTruco, LlamadaEnvido, Respuesta
-} from '../logic/trucoLogic.js';
 import { IAJefe } from '../logic/iaJefe.js';
+import { GameEngine } from '../logic/GameEngine.js';
+import { EstadoJuego, LlamadaTruco, LlamadaEnvido, Respuesta } from '../logic/core/Enums.js';
 
 const W = 960;
 const H = 540;
@@ -53,7 +51,7 @@ preload() {
 }
 
   create() {
-    this.logic = new TrucoLogic(this.puntosParaGanar);
+    this.logic = new GameEngine(this.puntosParaGanar);
     this.ia    = new IAJefe();
     this.ia.inicializar(this.provinciaId, this.logic);
 
@@ -221,28 +219,30 @@ _crearFondo() {
   }
 
   _respuestaActual = null;
-
+  
   _responderPendiente(resp) {
     if (this._respuestaActual === 'truco')  this.logic.responderTruco(resp);
     if (this._respuestaActual === 'envido') this.logic.responderEnvido(resp);
+    
     this._respuestaActual = null;
     this._actualizarBotones();
-    if (this.logic.estado === 'turno_rival') {
-      this.time.delayedCall(800, () => this._turnoIA());
+    
+    if (this.logic.estado === EstadoJuego.TURNO_RIVAL) {
+      this.time.delayedCall(1000, () => this._turnoIA());
     }
   }
 
   _actualizarBotones() {
     const l        = this.logic;
     const esT      = l.estado === EstadoJuego.TURNO_JUGADOR;
-    const hayRT    = l.quienCantoTruco  === 'rival' && l.respuestaTruco  === Respuesta.PENDIENTE;
-    const hayRE    = l.quienCantoEnvido === 'rival' && l.respuestaEnvido === Respuesta.PENDIENTE;
+    const hayRT = l.truco.quienCanto === 'rival' && l.truco.respuesta === Respuesta.PENDIENTE;
+    const hayRE = l.envido.quienCanto === 'rival' && l.envido.respuesta === Respuesta.PENDIENTE;
     const puedeEnv = esT && l.puedeCantarEnvido('jugador');
     const puedeT   = esT && l.puedeCantarTruco('jugador');
 
-    this._setBtn('truco',      puedeT && l.trucoActual === LlamadaTruco.NINGUNA);
-    this._setBtn('retruco',    puedeT && l.trucoActual === LlamadaTruco.TRUCO);
-    this._setBtn('valecuatro', puedeT && l.trucoActual === LlamadaTruco.RETRUCO);
+    this._setBtn('truco',      puedeT && l.truco.trucoActual === LlamadaTruco.NINGUNA);
+    this._setBtn('retruco',    puedeT && l.truco.trucoActual === LlamadaTruco.TRUCO);
+    this._setBtn('valecuatro', puedeT && l.truco.trucoActual === LlamadaTruco.RETRUCO);
     this._setBtn('envido',     puedeEnv);
     this._setBtn('real',       puedeEnv);
     this._setBtn('falta',      puedeEnv);
@@ -265,13 +265,20 @@ _crearFondo() {
       wordWrap: { width: 300 }, align: 'center'
     }).setOrigin(0.5).setDepth(5);
   }
-
+  
   _crearLabelFrase() {
-    this._labelFrase = this.add.text(MESA_X, H / 2 + 30, '', {
-      fontSize: '12px', color: '#EF9F27', fontStyle: 'italic',
+    this._labelFrase = this.add.text(MESA_X, H / 2 + 40, '', {
+      fontSize: '14px',
+      color: '#ffffff',
+      fontStyle: 'italic bold',
       fontFamily: "'Chakra Petch', monospace",
-      wordWrap: { width: 360 }, align: 'center'
-    }).setOrigin(0.5).setDepth(5);
+      backgroundColor: 'rgba(0, 0, 0, 0.6)',
+      padding: { x: 12, y: 6 },
+      wordWrap: { width: 360 }, 
+      align: 'center',
+      stroke: '#000000',
+      strokeThickness: 3
+    }).setOrigin(0.5).setDepth(20);
   }
 
   _mostrarFrase(txt) {
@@ -392,10 +399,14 @@ _crearFondo() {
   }
 
   _actualizarBazas() {
-    const bazas = this.logic.bazas;
+    const listaBazas = this.logic.bazas.bazas; 
+    
     this._bazaIndicadores.forEach((ind, i) => {
-      if (i >= bazas.length) { ind.setFillStyle(0x333333); return; }
-      const col = { jugador:0x34a853, rival:0xe24b4a, empate:0xEF9F27 }[bazas[i].ganador] ?? 0x555555;
+      if (i >= listaBazas.length) { 
+        ind.setFillStyle(0x333333); 
+        return; 
+      }
+      const col = { jugador:0x34a853, rival:0xe24b4a, empate:0xEF9F27 }[listaBazas[i].ganador] ?? 0x555555;
       ind.setFillStyle(col);
     });
   }
@@ -453,8 +464,8 @@ _crearFondo() {
 
   _onRespuestaRequerida(tipo) {
     const quienCanto = tipo === 'truco'
-      ? this.logic.quienCantoTruco
-      : this.logic.quienCantoEnvido;
+      ? this.logic.truco.quienCanto
+      : this.logic.envido.quienCanto;
 
     if (quienCanto === 'jugador') {
       this.time.delayedCall(1000, () => {
@@ -464,6 +475,7 @@ _crearFondo() {
         if (tipo === 'truco')  this.logic.responderTruco(resp);
         if (tipo === 'envido') this.logic.responderEnvido(resp);
         this._actualizarBotones();
+
         if (this.logic.estado === EstadoJuego.TURNO_RIVAL) {
           this.time.delayedCall(800, () => this._turnoIA());
         }
