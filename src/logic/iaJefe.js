@@ -1,7 +1,6 @@
-import { LlamadaTruco, LlamadaEnvido, Respuesta } from './trucoLogic.js';
+import { LlamadaTruco, LlamadaEnvido, Respuesta } from './core/Enums.js';
 
 const PERFILES = {
-
   tierra_del_fuego: {
     nombre:           'Mariano Torre',
     apodo:            'El Casi Ángel',
@@ -19,7 +18,6 @@ const PERFILES = {
     fraseVictoria:    '¡Lo hice! ¡Gané como en el episodio 47!',
     fraseDerrota:     'Esto no estaba en el guión... seguimos.',
   },
-
   santa_cruz: {
     nombre:           'Néstor Kirchner',
     apodo:            'El Pingüino',
@@ -37,7 +35,6 @@ const PERFILES = {
     fraseVictoria:    'El modelo funciona. Siempre funcionó.',
     fraseDerrota:     'Esto es una derrota táctica, no estratégica.',
   },
-
   buenos_aires: {
     nombre:           'Ricardo Fort',
     apodo:            'El Rey del Chocolate',
@@ -55,7 +52,6 @@ const PERFILES = {
     fraseVictoria:    'Fabulous. Como siempre. Alguien fotografíe esto.',
     fraseDerrota:     'Esto jamás habría pasado en mi yate.',
   },
-
   santa_fe: {
     nombre:           'Lionel Messi',
     apodo:            'La Pulga',
@@ -73,7 +69,6 @@ const PERFILES = {
     fraseVictoria:    '...',
     fraseDerrota:     'Bien jugado.',
   },
-
   cordoba: {
     nombre:           'Rodrigo Bueno',
     apodo:            'El Potro',
@@ -91,7 +86,6 @@ const PERFILES = {
     fraseVictoria:    '¡Qué liiindo que es el truco! ¡Olé, olé!',
     fraseDerrota:     '¡No importa! ¡Esta noche igual festejamos!',
   },
-
   san_juan: {
     nombre:           'Claudio Tapia',
     apodo:            'Chiqui',
@@ -109,7 +103,6 @@ const PERFILES = {
     fraseVictoria:    'Como siempre: la AFA, primero.',
     fraseDerrota:     'Esto va a revisión. Pido el VAR.',
   },
-
   salta: {
     nombre:           'El Chaqueño Palavecino',
     apodo:            'El Cantor del Norte',
@@ -149,19 +142,19 @@ export class IAJefe {
     const logic = this._logic;
     if (!logic) return { accion: 'jugar_carta', indice: 0 };
 
-    if (logic.bazas.length >= 1 && Math.random() < this._perfil.probIrMazo) {
+    if (logic.bazas.cantidadBazas >= 1 && Math.random() < this._perfil.probIrMazo) {
       if (this._primeraBazaPerdida() && this._manoEsDebil()) {
         return { accion: 'ir_al_mazo' };
       }
     }
 
-    if (logic.puedeCantarTruco('rival') && logic.trucoActual === LlamadaTruco.NINGUNA) {
+    if (logic.puedeCantarTruco('rival') && logic.truco.trucoActual === LlamadaTruco.NINGUNA) {
       if (Math.random() < this._probTrucoAjustada()) {
         return { accion: 'cantar_truco' };
       }
     }
 
-    if (logic.puedeCantarEnvido('rival') && logic.bazas.length === 0) {
+    if (logic.puedeCantarEnvido('rival') && logic.bazas.cantidadBazas === 0) {
       if (Math.random() < this._probEnvidoAjustada()) {
         return { accion: 'cantar_envido', nivelEnvido: this._elegirNivelEnvido() };
       }
@@ -174,7 +167,7 @@ export class IAJefe {
     let prob = this._perfil.probQuieroTruco;
     if (this._manoEsFuerte()) prob = Math.min(prob + 0.20, 1.0);
     else if (this._manoEsDebil()) prob = Math.max(prob - 0.25, 0.05);
-    if (this._logic.trucoActual === LlamadaTruco.RETRUCO) prob = Math.max(prob - 0.10, 0.05);
+    if (this._logic.truco.trucoActual === LlamadaTruco.RETRUCO) prob = Math.max(prob - 0.10, 0.05);
     return Math.random() < prob ? Respuesta.QUIERO : Respuesta.NO_QUIERO;
   }
 
@@ -183,14 +176,14 @@ export class IAJefe {
     const pts = this._logic.calcularEnvido(this._logic.manoRival);
     if (pts >= 28) prob = Math.min(prob + 0.25, 1.0);
     else if (pts <= 20) prob = Math.max(prob - 0.30, 0.05);
-    if (this._logic.enviDoActual === LlamadaEnvido.FALTA_ENVIDO) prob = Math.max(prob - 0.20, 0.05);
+    if (this._logic.envido.envidoActual === LlamadaEnvido.FALTA_ENVIDO) prob = Math.max(prob - 0.20, 0.05);
     return Math.random() < prob ? Respuesta.QUIERO : Respuesta.NO_QUIERO;
   }
 
   quiereRetruco() {
-    if (this._logic.trucoActual === LlamadaTruco.TRUCO)
+    if (this._logic.truco.trucoActual === LlamadaTruco.TRUCO)
       return Math.random() < this._perfil.probRetruco;
-    if (this._logic.trucoActual === LlamadaTruco.RETRUCO)
+    if (this._logic.truco.trucoActual === LlamadaTruco.RETRUCO)
       return Math.random() < this._perfil.probValeCuatro;
     return false;
   }
@@ -202,8 +195,8 @@ export class IAJefe {
       case 'agresivo':     return this._indiceMasFuerte(mano);
       case 'defensivo':    return this._indiceMasDebil(mano);
       case 'calculado':
-        if (this._logic.bazas.length === 0) return this._indiceMedia(mano);
-        if (this._logic.bazas.length === 1) return this._indiceMasFuerte(mano);
+        if (this._logic.bazas.cantidadBazas === 0) return this._indiceMedia(mano);
+        if (this._logic.bazas.cantidadBazas === 1) return this._indiceMasFuerte(mano);
         return 0;
       case 'impredecible':
         return Math.random() < this._perfil.probFarol
@@ -237,7 +230,7 @@ export class IAJefe {
     return this._logic.manoRival.every(c => c.valorTruco >= 11);
   }
   _primeraBazaPerdida() {
-    return this._logic.bazas.length > 0 && this._logic.bazas[0].ganador === 'jugador';
+    return this._logic.bazas.cantidadBazas > 0 && this._logic.bazas.bazas[0].ganador === 'jugador';
   }
 
   _probTrucoAjustada() {
