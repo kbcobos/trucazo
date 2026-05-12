@@ -19,7 +19,7 @@ export class AuraShopScene extends Phaser.Scene {
     this.descuento       = this.powerupsActivos.includes('descuento_gaucho') ? 20 : 0;
     this.slotsExtra      = this.powerupsActivos.includes('pulperia_express') ? 1  : 0;
   }
-
+  
   preload() {
     const powerupsIds = [
       'mazo_enganio', 'grito_quiero', 'ojo_buen_cubero', 'cara_piedra', 
@@ -28,7 +28,7 @@ export class AuraShopScene extends Phaser.Scene {
       'descuento_gaucho', 'la_pinta', 'el_matador', 'retruco_doble'
     ];
     for (const id of powerupsIds) {
-      this.load.image(id, `assets/powerups/${id}.png`); 
+      this.load.image(id, `assets/ui/powerups/${id}.png`); 
     }
   }
 
@@ -190,10 +190,10 @@ export class AuraShopScene extends Phaser.Scene {
       const bg = this.add.rectangle(0, 0, cardW, cardH, 0x120801, 0.96).setOrigin(0);
       bg.setStrokeStyle(yaComprado ? 2 : 1.5, yaComprado ? 0x34a853 : color);
       container.add(bg);
-
+      
       let ico;
       if (this.textures.exists(p.id)) {
-        ico = this.add.image(cardW / 2, 36, p.id).setDisplaySize(48, 48);
+        ico = this.add.image(cardW / 2, 42, p.id).setDisplaySize(70, 70); 
         container.add(ico);
       } else {
         const catColor = {truco:0xe24b4a,envido:0x378add,engaño:0x7f77dd,info:0x1d9e75,tienda:0xba7517,pasivo:0x888780};
