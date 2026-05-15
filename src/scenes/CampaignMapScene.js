@@ -51,6 +51,13 @@ const PROVINCIAS = [
 const ORDEN = ['tierra_del_fuego','santa_cruz','buenos_aires','santa_fe','cordoba','san_juan','salta'];
 const ESTADO_COLOR = { completada:0x34a853, actual:0xef9f27, disponible:0x4285f4, locked:0x555555 };
 
+const ESTADO_MARKER = {
+  completada: 'marker_check',
+  actual:     'marker_gaucho',
+  disponible: 'marker_available',
+  locked:     'marker_lock'
+};
+
 export class CampaignMapScene extends Phaser.Scene {
   constructor() { super('CampaignMap'); }
 
@@ -60,9 +67,14 @@ export class CampaignMapScene extends Phaser.Scene {
     this.provinciasDesbloq = data.provinciasDesbloq ?? ['tierra_del_fuego'];
     this.provinciaActual   = data.provinciaActual   ?? 'tierra_del_fuego';
   }
-
+  
   preload() {
     this.load.image('mapa_arg', 'assets/ui/mapa_argentina.jpeg');
+
+    this.load.image('marker_gaucho',    'assets/ui/map/marker_gaucho.png');
+    this.load.image('marker_check',     'assets/ui/map/marker_check.png');
+    this.load.image('marker_available', 'assets/ui/map/marker_available.png');
+    this.load.image('marker_lock',      'assets/ui/map/marker_lock.png');
   }
 
   create() {
@@ -82,18 +94,15 @@ export class CampaignMapScene extends Phaser.Scene {
     if (this.textures.exists('mapa_arg')) {
       this.add.rectangle(0, 0, W, H, 0x0d1a2a).setOrigin(0);
       this.add.image(0, 0, 'mapa_arg')
-        .setOrigin(0, 0)
-        .setDisplaySize(580, H);
-
+      .setOrigin(0, 0)
+      .setDisplaySize(580, H);
     } else {
-      const g = this.add.graphics();
-
-      g.fillStyle(0x0d1a2a, 1);
-      g.fillRect(0, 0, W, H);
-
-      g.fillStyle(0x1e3320, 1);
-      g.lineStyle(1, 0x2a4a2a, 1);
-      g.beginPath();
+        const g = this.add.graphics();
+        g.fillStyle(0x0d1a2a, 1);
+        g.fillRect(0, 0, W, H);
+        g.fillStyle(0x1e3320, 1);
+        g.lineStyle(1, 0x2a4a2a, 1);
+        g.beginPath();
       const pts = [
         [255,50],[305,46],[330,65],[345,90],[335,125],
         [355,155],[360,195],[350,230],[365,260],[355,295],
@@ -111,9 +120,7 @@ export class CampaignMapScene extends Phaser.Scene {
     }
 
     this.add.rectangle(580, 0, W - 580, H, 0x0a0604, 0.97).setOrigin(0);
-
     this.add.rectangle(580, 0, 1, H, 0xc09060, 0.25).setOrigin(0);
-
     this.add.text(290, 18, 'RUTA DEL MENTIROSO', {
       fontSize: '10px', color: 'rgba(255,220,140,0.7)',
       fontFamily: "'Chakra Petch', monospace", letterSpacing: 5
@@ -122,12 +129,10 @@ export class CampaignMapScene extends Phaser.Scene {
 
   _crearHUD() {
     this.add.rectangle(0, 0, 580, 36, 0x000000, 0.55).setOrigin(0);
-
     this._lblAura = this.add.text(14, 17, `🪙 ${this.aura} AURA`, {
       fontSize: '12px', color: '#EF9F27', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0, 0.5);
-
     this.add.text(566, 17, `⚡ ${this.powerupsActivos.length} PWR`, {
       fontSize: '12px', color: '#c09060',
       fontFamily: "'Chakra Petch', monospace"
@@ -136,11 +141,15 @@ export class CampaignMapScene extends Phaser.Scene {
 
   _dibujarRuta() {
     const g = this.add.graphics();
-    g.lineStyle(2, 0xEF9F27, 0.6);
+
+    g.lineStyle(3, 0x000000, 0.5); 
     for (let i = 0; i < PROVINCIAS.length - 1; i++) {
-      const a = PROVINCIAS[i];
-      const b = PROVINCIAS[i + 1];
-      this._lineaPunteada(g, a.x, a.y, b.x, b.y, 8, 5);
+      this._lineaPunteada(g, PROVINCIAS[i].x, PROVINCIAS[i].y + 2, PROVINCIAS[i+1].x, PROVINCIAS[i+1].y + 2, 8, 5);
+    }
+
+    g.lineStyle(2, 0x5c2c06, 1); 
+    for (let i = 0; i < PROVINCIAS.length - 1; i++) {
+      this._lineaPunteada(g, PROVINCIAS[i].x, PROVINCIAS[i].y, PROVINCIAS[i+1].x, PROVINCIAS[i+1].y, 8, 5);
     }
   }
 
@@ -163,30 +172,41 @@ export class CampaignMapScene extends Phaser.Scene {
 
   _dibujarProvincias() {
     for (const prov of PROVINCIAS) {
-      const estado = this._estadoProvincia(prov.id);
-      const color  = ESTADO_COLOR[estado];
-      const g      = this.add.graphics();
+      const estado    = this._estadoProvincia(prov.id);
+      const markerKey = ESTADO_MARKER[estado];
+      const hayImagen = this.textures.exists(markerKey);
 
       if (estado === 'actual') {
-        g.fillStyle(color, 0.22);
-        g.fillCircle(prov.x, prov.y, 22);
+        const glow = this.add.graphics();
+        glow.fillStyle(ESTADO_COLOR[estado], 0.22);
+        glow.fillCircle(prov.x, prov.y, 26);
         this.tweens.add({
-          targets: g, alpha: { from: 1, to: 0.5 },
+          targets: glow, alpha: { from: 1, to: 0.4 },
           duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
         });
       }
 
-      g.fillStyle(estado === 'locked' ? 0x333333 : color, 1);
-      g.fillCircle(prov.x, prov.y, 12);
-      g.lineStyle(2, 0x1a2a1a, 1);
-      g.strokeCircle(prov.x, prov.y, 12);
+      let markerObj;
 
-      const iconos = { completada:'✓', actual:'★', disponible:'●', locked:'🔒' };
-      this.add.text(prov.x, prov.y + 1, iconos[estado], {
-        fontSize: '10px', color: '#ffffff'
-      }).setOrigin(0.5);
+      if (hayImagen) {
+        markerObj = this.add.image(prov.x, prov.y, markerKey)
+          .setDisplaySize(38, 38);
+      } else {
+        const g = this.add.graphics();
+        g.fillStyle(estado === 'locked' ? 0x333333 : ESTADO_COLOR[estado], 1);
+        g.fillCircle(prov.x, prov.y, 12);
+        g.lineStyle(2, 0x1a2a1a, 1);
+        g.strokeCircle(prov.x, prov.y, 12);
 
-      const lblX   = prov.x > 290 ? prov.x + 16 : prov.x - 16;
+        const iconos = { completada:'✓', actual:'★', disponible:'●', locked:'🔒' };
+        this.add.text(prov.x, prov.y + 1, iconos[estado], {
+          fontSize: '10px', color: '#ffffff'
+        }).setOrigin(0.5);
+
+        markerObj = g;
+      }
+
+      const lblX   = prov.x > 290 ? prov.x + 20 : prov.x - 20;
       const anchor = prov.x > 290 ? 0 : 1;
       this.add.text(lblX, prov.y + 1, prov.nombre, {
         fontSize: '12px',
@@ -196,18 +216,38 @@ export class CampaignMapScene extends Phaser.Scene {
 
       if (prov.sub) {
         const sc = { INICIO:'#34a853', FINAL:'#e24b4a' }[prov.sub] ?? '#888';
-        this.add.text(prov.x, prov.y - 22, prov.sub, {
+        this.add.text(prov.x, prov.y - 26, prov.sub, {
           fontSize: '8px', color: sc, fontStyle: 'bold',
           fontFamily: "'Chakra Petch', monospace", letterSpacing: 2
         }).setOrigin(0.5);
       }
-
+      
       if (estado !== 'locked') {
         const hit = this.add.circle(prov.x, prov.y, 24, 0xffffff, 0)
           .setInteractive({ useHandCursor: true });
+
         hit.on('pointerdown', () => this._seleccionarProvincia(prov));
-        hit.on('pointerover',  () => g.setAlpha(1.4));
-        hit.on('pointerout',   () => g.setAlpha(1.0));
+
+        const baseScaleX = markerObj.scaleX;
+        const baseScaleY = markerObj.scaleY;
+
+        hit.on('pointerover', () => {
+          this.tweens.add({ 
+            targets: markerObj, 
+            scaleX: baseScaleX * 2.0, 
+            scaleY: baseScaleY * 2.0, 
+            duration: 120 
+          });
+        });
+        
+        hit.on('pointerout', () => {
+          this.tweens.add({ 
+            targets: markerObj, 
+            scaleX: baseScaleX, 
+            scaleY: baseScaleY, 
+            duration: 120 
+          });
+        });
       }
     }
   }
@@ -319,12 +359,12 @@ export class CampaignMapScene extends Phaser.Scene {
     this.cameras.main.fadeOut(400, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.start('GameBoard', {
-        provinciaId:     prov.id,
-        jefeNombre:      prov.jefe,
-        puntosParaGanar: prov.pts,
-        recompensaAura:  prov.aura,
-        powerupsActivos: this.powerupsActivos,
-        aura:            this.aura,
+        provinciaId:       prov.id,
+        jefeNombre:        prov.jefe,
+        puntosParaGanar:   prov.pts,
+        recompensaAura:    prov.aura,
+        powerupsActivos:   this.powerupsActivos,
+        aura:              this.aura,
         provinciasDesbloq: this.provinciasDesbloq,
         provinciaActual:   this.provinciaActual
       });
