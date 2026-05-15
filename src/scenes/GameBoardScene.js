@@ -48,6 +48,17 @@ preload() {
   
   this.load.image('carta_reverso', 'assets/cards/reverso.jpeg');
   this.load.image('fondo_mesa', 'assets/ui/fondo_mesa.jpeg');
+  
+  this.load.image('marco_gaucho', 'assets/ui/banners/marco_gaucho.png');
+  this.load.image('marco_pampa', 'assets/ui/banners/marco_pampa.png');
+  this.load.image('marco_dorado', 'assets/ui/banners/marco_dorado.png');
+  this.load.image('marco_perfecto', 'assets/ui/banners/marco_perfecto.png');
+  this.load.image('marco_basico', 'assets/ui/banners/marco_basico.png');
+  
+  this.load.image('icono_gaucho', 'assets/ui/banners/icono_gaucho.png');
+  this.load.image('icono_gaucho_dorado', 'assets/ui/banners/icono_gaucho_dorado.png');
+  this.load.image('icono_gaucho_rojo', 'assets/ui/banners/icono_gaucho_rojo.png');
+  this.load.image('icono_gaucho_negro', 'assets/ui/banners/icono_gaucho_negro.png');
 }
 
   create() {
@@ -101,56 +112,61 @@ _crearFondo() {
   _crearPanelIzquierdo() {
     const cx = IZQ_W / 2;
 
-    this.add.text(cx, 22, this.ia.getNombre(), {
+    if (this.textures.exists('marco_gaucho')) {
+      this.add.image(cx, 50, 'marco_gaucho').setDisplaySize(140, 80);
+      this.add.image(cx, 50, 'icono_gaucho').setDisplaySize(44, 44);
+    }
+
+    this.add.text(cx, 104, this.ia.getNombre(), {
       fontSize: '18px', color: '#EF9F27', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace",
       wordWrap: { width: IZQ_W - 14 }, align: 'center'
     }).setOrigin(0.5);
 
-    this.add.text(cx, 42, `"${this.ia.getApodo()}"`, {
+    this.add.text(cx, 124, `"${this.ia.getApodo()}"`, {
       fontSize: '14px', color: '#c09060',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
-    this.add.rectangle(cx, 56, IZQ_W - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
+    this.add.rectangle(cx, 140, IZQ_W - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
 
-    this._lblPtsRival = this.add.text(cx, 74, 'Rival: 0', {
+    this._lblPtsRival = this.add.text(cx, 158, 'Rival: 0', {
       fontSize: '13px', color: '#e8c88a', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
-    this._lblPtsJugador = this.add.text(cx, 94, 'Vos: 0', {
+    this._lblPtsJugador = this.add.text(cx, 178, 'Vos: 0', {
       fontSize: '13px', color: '#EF9F27', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
-    this.add.text(cx, 112, `Meta: ${this.puntosParaGanar} pts`, {
+    this.add.text(cx, 196, `Meta: ${this.puntosParaGanar} pts`, {
       fontSize: '12px', color: '#7a5030',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
-    this.add.rectangle(cx, 126, IZQ_W - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
+    this.add.rectangle(cx, 212, IZQ_W - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
 
-    this.add.text(cx, 144, 'BAZAS', {
+    this.add.text(cx, 228, 'BAZAS', {
       fontSize: '9px', color: '#7a5030', letterSpacing: 3,
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
     this._bazaIndicadores = [];
     for (let i = 0; i < 3; i++) {
-      const ind = this.add.rectangle(cx - 24 + i * 24, 164, 18, 18, 0x333333)
+      const ind = this.add.rectangle(cx - 24 + i * 24, 248, 18, 18, 0x333333)
         .setStrokeStyle(1, 0x7a5030);
       this._bazaIndicadores.push(ind);
     }
 
-    this.add.rectangle(cx, 184, IZQ_W - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
+    this.add.rectangle(cx, 270, IZQ_W - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
 
-    this.add.text(cx, 200, 'AURA', {
+    this.add.text(cx, 286, 'AURA', {
       fontSize: '9px', color: '#7a5030', letterSpacing: 3,
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
-    this._lblAura = this.add.text(cx, 220, `🪙 ${this.aura}`, {
+    this._lblAura = this.add.text(cx, 306, `🪙 ${this.aura}`, {
       fontSize: '14px', color: '#EF9F27', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
@@ -226,7 +242,7 @@ _crearFondo() {
     
     this._respuestaActual = null;
     this._actualizarBotones();
-    
+
     if (this.logic.estado === EstadoJuego.TURNO_RIVAL) {
       this.time.delayedCall(1000, () => this._turnoIA());
     }
@@ -272,7 +288,7 @@ _crearFondo() {
       color: '#ffffff',
       fontStyle: 'italic bold',
       fontFamily: "'Chakra Petch', monospace",
-      backgroundColor: 'rgba(0, 0, 0, 0.6)',
+      backgroundColor: 'rgba(0, 0, 0, 0.6)', 
       padding: { x: 12, y: 6 },
       wordWrap: { width: 360 }, 
       align: 'center',
