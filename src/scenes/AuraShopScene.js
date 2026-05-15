@@ -29,6 +29,15 @@ export class AuraShopScene extends Phaser.Scene {
     ];
     for (const id of powerupsIds) {
       this.load.image(id, `assets/ui/powerups/${id}.png`); 
+
+      this.load.image('marco_gaucho', 'assets/ui/banners/marco_gaucho.png');
+      this.load.image('marco_pampa', 'assets/ui/banners/marco_pampa.png');
+      this.load.image('marco_dorado', 'assets/ui/banners/marco_dorado.png');
+      this.load.image('marco_perfecto', 'assets/ui/banners/marco_perfecto.png');
+      this.load.image('marco_basico', 'assets/ui/banners/marco_basico.png');
+
+      this.load.image('cantinero', 'assets/ui/cantinero_mercader.png');
+      this.load.image('fondo_tienda', 'assets/ui/fondo_tienda.png');
     }
   }
 
@@ -48,12 +57,20 @@ export class AuraShopScene extends Phaser.Scene {
   }
 
   _crearFondo() {
-    this.add.rectangle(0, 0, W, H, 0x0f0802).setOrigin(0);
-    for (let x = 0; x < W; x += 60)
-      this.add.rectangle(x, 0, 1, H, 0xffffff, 0.015).setOrigin(0);
-    for (let y = 0; y < H; y += 55)
-      this.add.rectangle(0, y, W, 1, 0xffffff, 0.015).setOrigin(0);
-    this.add.rectangle(220, 0, 1, H, 0xc09060, 0.2).setOrigin(0);
+    if (this.textures.exists('fondo_tienda')) {
+      this.add.image(0, 0, 'fondo_tienda')
+        .setOrigin(0)
+        .setDisplaySize(W, H);
+        
+      this.add.rectangle(0, 0, 230, H, 0x000000, 0.85).setOrigin(0);
+      
+      this.add.rectangle(230, 0, W - 230, H, 0x000000, 0.55).setOrigin(0);
+
+    } else {
+      this.add.rectangle(0, 0, W, H, 0x0f0802).setOrigin(0);
+    }
+
+    this.add.rectangle(230, 0, 1, H, 0xc09060, 0.4).setOrigin(0);
   }
 
   _crearPanelIzquierdo() {
@@ -97,19 +114,11 @@ export class AuraShopScene extends Phaser.Scene {
   }
 
   _dibujarVendedor(cx, cy) {
-    const g = this.add.graphics();
-    g.fillStyle(0x3a1a08); g.fillRect(cx - 35, cy - 70, 70, 8);
-    g.fillStyle(0x4a2210); g.fillRect(cx - 22, cy - 100, 44, 32);
-    g.fillStyle(0xc89060); g.fillCircle(cx, cy - 40, 22);
-    g.fillStyle(0x1a0a00); g.fillCircle(cx - 8, cy - 42, 3); g.fillCircle(cx + 8, cy - 42, 3);
-    g.fillStyle(0x3a1a08); g.fillRect(cx - 10, cy - 30, 20, 4);
-    g.fillStyle(0x8a1a1a); g.fillTriangle(cx - 35, cy - 15, cx + 35, cy - 15, cx, cy + 40);
-    g.fillStyle(0x6a1010); g.fillRect(cx - 12, cy - 16, 24, 56);
-    g.fillStyle(0x8a1a1a);
-    g.fillRect(cx - 45, cy - 10, 14, 8);
-    g.fillRect(cx + 31, cy - 10, 14, 8);
-    g.fillStyle(0xc89060);
-    g.fillCircle(cx - 45, cy - 6, 6); g.fillCircle(cx + 45, cy - 6, 6);
+    if (this.textures.exists('cantinero')) {
+      this.add.image(cx, cy - 30, 'cantinero').setDisplaySize(160, 160);
+    } else {
+      this.add.text(cx, cy, '[CANTINERO.PNG]', { color: '#ff0000' }).setOrigin(0.5);
+    }
   }
 
   _cargarPowerups() {
@@ -164,6 +173,9 @@ export class AuraShopScene extends Phaser.Scene {
     this._tarjetas.forEach(t => { if (t.container) t.container.destroy(); });
     this._tarjetas = [];
     
+    const W = this.cameras.main.width;
+    const H = this.cameras.main.height;
+    
     if (this._oferta.length === 0) {
       this.add.text(W / 2 + 110, H / 2, '¡Tenés todos los powerups!', {
         fontSize: '16px', color: '#c09060', fontFamily: "'Chakra Petch', monospace"
@@ -183,43 +195,39 @@ export class AuraShopScene extends Phaser.Scene {
       const precio = Math.max(0, p.precio - this.descuento);
       const puedePagar = this.auraDisponible >= precio;
       const yaComprado = this._powerupsComprados.includes(p.id);
-      const color  = RAREZA_COLOR[p.rareza] ?? 0xb4b2a9;
+      
+      let color = 0xb4b2a9;
+      if (p.rareza === 'rara') color = 0x4285f4;
+      if (p.rareza === 'epica') color = 0xef9f27;
       
       const container = this.add.container(x, cardY);
       
-      const bg = this.add.rectangle(0, 0, cardW, cardH, 0x120801, 0.96).setOrigin(0);
-      bg.setStrokeStyle(yaComprado ? 2 : 1.5, yaComprado ? 0x34a853 : color);
-      container.add(bg);
+      const bg = this.add.rectangle(0, 0, cardW, cardH, 0x050200, 0.95).setOrigin(0);
       
-      let ico;
+      bg.setStrokeStyle(2, color, 1);
+      
+      container.add(bg);
+
       if (this.textures.exists(p.id)) {
-        ico = this.add.image(cardW / 2, 42, p.id).setDisplaySize(70, 70); 
+        const ico = this.add.image(cardW / 2, 42, p.id).setDisplaySize(70, 70);
         container.add(ico);
-      } else {
-        const catColor = {truco:0xe24b4a,envido:0x378add,engaño:0x7f77dd,info:0x1d9e75,tienda:0xba7517,pasivo:0x888780};
-        ico = this.add.rectangle(cardW / 2, 36, 48, 48, catColor[p.cat] ?? 0x555555).setOrigin(0.5);
-        ico.setStrokeStyle(1, color);
-        const letra = this.add.text(cardW / 2, 36, p.cat[0].toUpperCase(), {
-          fontSize: '18px', color: '#ffffff', fontStyle: 'bold', fontFamily: "'Chakra Petch'"
-        }).setOrigin(0.5);
-        container.add([ico, letra]);
       }
       
-      const lblRareza = this.add.text(cardW / 2, 68, RAREZA_LABEL[p.rareza], {
+      const lblRareza = this.add.text(cardW / 2, 88, p.rareza.toUpperCase(), {
         fontSize: '9px', color: `#${color.toString(16).padStart(6,'0')}`,
         fontFamily: "'Chakra Petch'", fontStyle: 'bold', letterSpacing: 2
       }).setOrigin(0.5);
       
-      const lblNombre = this.add.text(cardW / 2, 86, p.nombre, {
+      const lblNombre = this.add.text(cardW / 2, 106, p.nombre, {
         fontSize: '12px', color: '#e8c88a', fontStyle: 'bold',
-        fontFamily: "'Chakra Petch'", wordWrap: { width: cardW - 16 }, align: 'center'
+        fontFamily: "'Chakra Petch'", wordWrap: { width: cardW - 24 }, align: 'center'
       }).setOrigin(0.5, 0);
       
-      const sep = this.add.rectangle(cardW / 2, 118, cardW - 20, 1, 0xc09060, 0.2).setOrigin(0.5);
+      const sep = this.add.rectangle(cardW / 2, 140, cardW - 30, 1, 0xc09060, 0.2).setOrigin(0.5);
       
-      const lblDesc = this.add.text(cardW / 2, 130, p.desc, {
+      const lblDesc = this.add.text(cardW / 2, 155, p.desc, {
         fontSize: '11px', color: '#a08060',
-        fontFamily: "'Chakra Petch'", wordWrap: { width: cardW - 18 }, align: 'center'
+        fontFamily: "'Chakra Petch'", wordWrap: { width: cardW - 24 }, align: 'center'
       }).setOrigin(0.5, 0);
       
       const precioColor = puedePagar ? '#EF9F27' : '#555555';
@@ -232,12 +240,11 @@ export class AuraShopScene extends Phaser.Scene {
 
       if (!yaComprado) {
         const btnColor  = puedePagar ? 0x2a1608 : 0x1a1208;
-        const btnBorder = puedePagar ? color : 0x333333;
-        const btnBg     = this.add.rectangle(cardW / 2, cardH - 28, cardW - 20, 34, btnColor).setOrigin(0.5);
-        btnBg.setStrokeStyle(1, btnBorder);
+        const btnBg     = this.add.rectangle(cardW / 2, cardH - 28, cardW - 30, 34, btnColor).setOrigin(0.5);
+        btnBg.setStrokeStyle(1, puedePagar ? color : 0x333333);
         
         const lblBtn = this.add.text(cardW / 2, cardH - 28, puedePagar ? 'COMPRAR' : 'SIN AURA', {
-          fontSize: '11px', color: puedePagar ? `#${color.toString(16).padStart(6,'0')}` : '#555',
+          fontSize: '11px', color: puedePagar ? '#EF9F27' : '#555',
           fontFamily: "'Chakra Petch'", fontStyle: 'bold'
         }).setOrigin(0.5);
         
@@ -248,7 +255,7 @@ export class AuraShopScene extends Phaser.Scene {
         container.add([btnBg, lblBtn]);
       }
       
-      if (!puedePagar && !yaComprado) container.setAlpha(0.5);
+      if (!puedePagar && !yaComprado) container.setAlpha(0.6);
       
       this._tarjetas.push({ powerup: p, precio, container });
     });
