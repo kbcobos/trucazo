@@ -65,7 +65,9 @@ export class CampaignMapScene extends Phaser.Scene {
     this.powerupsActivos   = data.powerupsActivos   ?? [];
     this.aura              = data.aura              ?? 0;
     this.provinciasDesbloq = data.provinciasDesbloq ?? ['tierra_del_fuego'];
-    this.provinciaActual   = data.provinciaActual   ?? 'tierra_del_fuego';
+    this.provinciaActual   = data.provinciaActual   ?? 'tierra_del_fuego';    
+    this.iconoJugador      = data.iconoJugador      ?? 'icono_gaucho';
+    this.marcoJugador      = data.marcoJugador      ?? 'marco_basico';
   }
   
   preload() {
@@ -75,6 +77,8 @@ export class CampaignMapScene extends Phaser.Scene {
     this.load.image('marker_check',     'assets/ui/map/marker_check.png');
     this.load.image('marker_available', 'assets/ui/map/marker_available.png');
     this.load.image('marker_lock',      'assets/ui/map/marker_lock.png');
+
+    this.load.image('icono_aura', 'assets/ui/icono_aura.png');
   }
 
   create() {
@@ -86,6 +90,7 @@ export class CampaignMapScene extends Phaser.Scene {
     this._dibujarRuta();
     this._dibujarProvincias();
     this._crearPanelInfoVacio();
+    this._crearBotonVolver();
 
     this.cameras.main.fadeIn(400, 0, 0, 0);
   }
@@ -129,10 +134,16 @@ export class CampaignMapScene extends Phaser.Scene {
 
   _crearHUD() {
     this.add.rectangle(0, 0, 580, 36, 0x000000, 0.55).setOrigin(0);
-    this._lblAura = this.add.text(14, 17, `🪙 ${this.aura} AURA`, {
+    
+    if (this.textures.exists('icono_aura')) {
+      this.add.image(18, 17, 'icono_aura').setDisplaySize(16, 16);
+    }
+
+    this._lblAura = this.add.text(32, 17, `${this.aura} AURA`, {
       fontSize: '12px', color: '#EF9F27', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0, 0.5);
+
     this.add.text(566, 17, `⚡ ${this.powerupsActivos.length} PWR`, {
       fontSize: '12px', color: '#c09060',
       fontFamily: "'Chakra Petch', monospace"
@@ -252,6 +263,42 @@ export class CampaignMapScene extends Phaser.Scene {
     }
   }
 
+  _crearBotonVolver() {
+    const btnBg = this.add.rectangle(80, H - 30, 120, 36, 0x1a0e06).setOrigin(0.5);
+    btnBg.setStrokeStyle(1, 0x555555).setInteractive({ useHandCursor: true });
+    
+    const btnLbl = this.add.text(80, H - 30, '← MENÚ', {
+      fontSize: '12px', color: '#888888', fontStyle: 'bold',
+      fontFamily: "'Chakra Petch', monospace"
+    }).setOrigin(0.5);
+
+    btnBg.on('pointerover', () => {
+      btnBg.setFillStyle(0x2a1608);
+      btnBg.setStrokeStyle(1, 0xEF9F27);
+      btnLbl.setColor('#EF9F27');
+    });
+    
+    btnBg.on('pointerout', () => {
+      btnBg.setFillStyle(0x1a0e06);
+      btnBg.setStrokeStyle(1, 0x555555);
+      btnLbl.setColor('#888888');
+    });
+
+    btnBg.on('pointerdown', () => {
+      this.cameras.main.fadeOut(400, 0, 0, 0);
+      this.cameras.main.once('camerafadeoutcomplete', () => {
+        this.scene.start('MainMenu', {
+          powerupsActivos:   this.powerupsActivos,
+          aura:              this.aura,
+          provinciasDesbloq: this.provinciasDesbloq,
+          provinciaActual:   this.provinciaActual,
+          iconoJugador:      this.iconoJugador,
+          marcoJugador:      this.marcoJugador
+        }); 
+      });
+    });
+  }
+
   _crearPanelInfoVacio() {
     this._infoHint = this.add.text(770, H / 2,
       'Tocá una provincia\npara ver el jefe.', {
@@ -366,7 +413,9 @@ export class CampaignMapScene extends Phaser.Scene {
         powerupsActivos:   this.powerupsActivos,
         aura:              this.aura,
         provinciasDesbloq: this.provinciasDesbloq,
-        provinciaActual:   this.provinciaActual
+        provinciaActual:   this.provinciaActual,
+        iconoJugador:      this.iconoJugador,
+        marcoJugador:      this.marcoJugador
       });
     });
   }
