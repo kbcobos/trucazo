@@ -6,6 +6,18 @@ const H = 540;
 export class MainMenuScene extends Phaser.Scene {
   constructor() { super('MainMenu'); }
 
+  init(data) {
+    const d = data || {};
+
+    this.powerupsActivos   = data.powerupsActivos   ?? [];
+    this.aura              = data.aura              ?? 0;
+    this.provinciasDesbloq = data.provinciasDesbloq ?? ['tierra_del_fuego'];
+    this.provinciaActual   = data.provinciaActual   ?? 'tierra_del_fuego';
+
+    this.iconoJugador      = data.iconoJugador      ?? 'icono_gaucho';
+    this.marcoJugador      = data.marcoJugador      ?? 'marco_basico';
+  }
+
   preload() {
     this.load.image('fondo_arg', 'assets/ui/fondo_menu.jpeg');
   }
@@ -94,8 +106,8 @@ _crearFondo() {
       { label: '▶  NUEVA PARTIDA', primary: true,  fn: () => this._nuevaPartida() },
       { label: '↩  CONTINUAR',     primary: false,  fn: () => this._continuar()   },
       { label: '◈  MODOS DE JUEGO',primary: false,  fn: () => this._modos()       },
-      { label: '⚙  OPCIONES',      primary: false,  fn: () => {}                  },
-      { label: '✕  SALIR',         primary: false, danger: true, fn: () => {}     },
+      { label: '⚙  OPCIONES',      primary: false,  fn: () => this._abrirOpciones() },
+      { label: '✕  SALIR',         primary: false, danger: true, fn: () => this._salir() },
     ];
 
     botones.forEach((btn, i) => {
@@ -128,13 +140,37 @@ _crearFondo() {
     });
   }
 
+  _abrirOpciones() {
+    this.cameras.main.fadeOut(400, 0, 0, 0);
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      this.scene.start('Customization', {
+        powerupsActivos:   this.powerupsActivos,
+        aura:              this.aura,
+        provinciasDesbloq: this.provinciasDesbloq,
+        provinciaActual:   this.provinciaActual,
+        iconoJugador:      this.iconoJugador,
+        marcoJugador:      this.marcoJugador
+      });
+    });
+  }
+
+  _salir() {
+    this.cameras.main.fadeOut(400, 0, 0, 0);
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      window.close();
+      window.location.href = "about:blank";
+    });
+  }
+
   _nuevaPartida() {
     this.cameras.main.fadeOut(400, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.start('CampaignMap', {
         powerupsActivos: [], aura: 0,
         provinciasDesbloq: ['tierra_del_fuego'],
-        provinciaActual: 'tierra_del_fuego'
+        provinciaActual: 'tierra_del_fuego',
+        iconoJugador: this.iconoJugador,
+        marcoJugador: this.marcoJugador
       });
     });
   }
