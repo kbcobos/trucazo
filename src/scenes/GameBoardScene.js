@@ -20,14 +20,16 @@ export class GameBoardScene extends Phaser.Scene {
   constructor() { super('GameBoard'); }
 
   init(data) {
-    this.provinciaId     = data.provinciaId     ?? 'tierra_del_fuego';
-    this.jefeNombre      = data.jefeNombre       ?? 'Rival';
-    this.puntosParaGanar = data.puntosParaGanar  ?? 15;
+    this.provinciaId     = data.provinciaId;
+    this.jefeNombre      = data.jefeNombre;
+    this.puntosParaGanar = data.puntosParaGanar ?? 15;
     this.recompensaAura  = data.recompensaAura   ?? 80;
     this.powerupsActivos = data.powerupsActivos  ?? [];
     this.aura            = data.aura             ?? 0;
     this.provinciasDesbloq = data.provinciasDesbloq ?? ['tierra_del_fuego'];
     this.provinciaActual   = data.provinciaActual   ?? 'tierra_del_fuego';
+    this.iconoJugador      = data.iconoJugador      ?? 'icono_gaucho';
+    this.marcoJugador      = data.marcoJugador      ?? 'marco_basico';
   }
 
 preload() {
@@ -59,6 +61,16 @@ preload() {
   this.load.image('icono_gaucho_dorado', 'assets/ui/banners/icono_gaucho_dorado.png');
   this.load.image('icono_gaucho_rojo', 'assets/ui/banners/icono_gaucho_rojo.png');
   this.load.image('icono_gaucho_negro', 'assets/ui/banners/icono_gaucho_negro.png');
+
+  this.load.image('jefe_tierra_del_fuego', 'assets/ui/jefes/Mariano_Torre.png');
+  this.load.image('jefe_santa_cruz',       'assets/ui/jefes/Nestor_Kirchner.png');
+  this.load.image('jefe_buenos_aires',     'assets/ui/jefes/Ricardo_Fort.png');
+  this.load.image('jefe_santa_fe',         'assets/ui/jefes/Lionel_Messi.png');
+  this.load.image('jefe_cordoba',          'assets/ui/jefes/Rodrigo_Bueno.png');
+  this.load.image('jefe_san_juan',         'assets/ui/jefes/Chiqui_Tapia.png');
+  this.load.image('jefe_salta',            'assets/ui/jefes/Chaqueño_Palavecino.png');
+
+  this.load.image('icono_aura', 'assets/ui/icono_aura.png');
 }
 
   create() {
@@ -94,81 +106,105 @@ preload() {
     this.logic.iniciarMano();
   }
 
-_crearFondo() {
-  this.add.rectangle(0, 0, W, H, 0x0d1a0d).setOrigin(0);
-
-  if (this.textures.exists('fondo_mesa')) {
-    this.add.image(W / 2, H / 2, 'fondo_mesa')
+  _crearFondo() {
+    this.add.rectangle(0, 0, W, H, 0x0d1a0d).setOrigin(0);
+    
+    if (this.textures.exists('fondo_mesa')) {
+      this.add.image(W / 2, H / 2, 'fondo_mesa')
       .setDisplaySize(W, H)
       .setDepth(0);
-  } else {
-    this.add.rectangle(MESA_X, H / 2, DER_X - IZQ_W, H, 0x0d2b0d, 0.85).setOrigin(0.5);
+    } else {
+      this.add.rectangle(MESA_X, H / 2, DER_X - IZQ_W, H, 0x0d2b0d, 0.85).setOrigin(0.5);
+    }
+    
+    this.add.rectangle(0, 0, IZQ_W, H, 0x080402, 0.88).setOrigin(0);
+    this.add.rectangle(DER_X, 0, DER_W, H, 0x080402, 0.88).setOrigin(0);
   }
-
-  this.add.rectangle(0, 0, IZQ_W, H, 0x080402, 0.88).setOrigin(0);
-  this.add.rectangle(DER_X, 0, DER_W, H, 0x080402, 0.88).setOrigin(0);
-}
 
   _crearPanelIzquierdo() {
     const cx = IZQ_W / 2;
 
     if (this.textures.exists('marco_gaucho')) {
-      this.add.image(cx, 50, 'marco_gaucho').setDisplaySize(140, 80);
-      this.add.image(cx, 50, 'icono_gaucho').setDisplaySize(44, 44);
+      this.add.image(cx, 60, 'marco_gaucho').setDisplaySize(150, 110);
+    }
+    
+    if (this.textures.exists(`jefe_${this.provinciaId}`)) {
+      this.add.image(cx, 60, `jefe_${this.provinciaId}`).setDisplaySize(90, 90);
     }
 
-    this.add.text(cx, 104, this.ia.getNombre(), {
-      fontSize: '18px', color: '#EF9F27', fontStyle: 'bold',
+    this.add.text(cx, 128, this.ia.getNombre(), {
+      fontSize: '15px', color: '#EF9F27', fontStyle: 'bold',
+      fontFamily: "'Chakra Petch', monospace",
+      wordWrap: { width: IZQ_W - 14 }, align: 'center',
+      lineSpacing: -2 
+    }).setOrigin(0.5);
+
+    this.add.text(cx, 154, `"${this.ia.getApodo()}"`, {
+      fontSize: '12px', color: '#c09060',
       fontFamily: "'Chakra Petch', monospace",
       wordWrap: { width: IZQ_W - 14 }, align: 'center'
     }).setOrigin(0.5);
 
-    this.add.text(cx, 124, `"${this.ia.getApodo()}"`, {
-      fontSize: '14px', color: '#c09060',
-      fontFamily: "'Chakra Petch', monospace"
-    }).setOrigin(0.5);
+    this.add.rectangle(cx, 166, IZQ_W - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
 
-    this.add.rectangle(cx, 140, IZQ_W - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
-
-    this._lblPtsRival = this.add.text(cx, 158, 'Rival: 0', {
+    this._lblPtsRival = this.add.text(cx, 184, 'Rival: 0', {
       fontSize: '13px', color: '#e8c88a', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
-    this._lblPtsJugador = this.add.text(cx, 178, 'Vos: 0', {
+    this._lblPtsJugador = this.add.text(cx, 204, 'Vos: 0', {
       fontSize: '13px', color: '#EF9F27', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
-    this.add.text(cx, 196, `Meta: ${this.puntosParaGanar} pts`, {
+    this.add.text(cx, 222, `Meta: ${this.puntosParaGanar} pts`, {
       fontSize: '12px', color: '#7a5030',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
-    this.add.rectangle(cx, 212, IZQ_W - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
+    this.add.rectangle(cx, 238, IZQ_W - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
 
-    this.add.text(cx, 228, 'BAZAS', {
+    this.add.text(cx, 254, 'BAZAS', {
       fontSize: '9px', color: '#7a5030', letterSpacing: 3,
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
     this._bazaIndicadores = [];
     for (let i = 0; i < 3; i++) {
-      const ind = this.add.rectangle(cx - 24 + i * 24, 248, 18, 18, 0x333333)
+      const ind = this.add.rectangle(cx - 24 + i * 24, 274, 18, 18, 0x333333)
         .setStrokeStyle(1, 0x7a5030);
       this._bazaIndicadores.push(ind);
     }
 
-    this.add.rectangle(cx, 270, IZQ_W - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
+    this.add.rectangle(cx, 296, IZQ_W - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
 
-    this.add.text(cx, 286, 'AURA', {
+    this.add.text(cx, 312, 'AURA', {
       fontSize: '9px', color: '#7a5030', letterSpacing: 3,
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
-    this._lblAura = this.add.text(cx, 306, `🪙 ${this.aura}`, {
+    if (this.textures.exists('icono_aura')) {
+      this.add.image(cx - 15, 332, 'icono_aura').setDisplaySize(20, 20);
+    }
+
+    this._lblAura = this.add.text(cx + 5, 332, `${this.aura}`, {
       fontSize: '14px', color: '#EF9F27', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace"
+    }).setOrigin(0, 0.5);
+
+    this.add.rectangle(cx, 370, IZQ_W - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
+
+    if (this.textures.exists(this.marcoJugador)) {
+      this.add.image(cx, 430, this.marcoJugador).setDisplaySize(160, 120);
+    }
+    
+    if (this.textures.exists(this.iconoJugador)) {
+      this.add.image(cx, 430, this.iconoJugador).setDisplaySize(90, 90);
+    }
+
+    this.add.text(cx, 500, 'JUGADOR', {
+      fontSize: '14px', color: '#e8c88a', fontStyle: 'bold',
+      fontFamily: "'Chakra Petch', monospace", letterSpacing: 2
     }).setOrigin(0.5);
   }
 
@@ -524,6 +560,8 @@ _crearFondo() {
     });
 
     if (esJugador) {
+      this._onAuraGanada(this.recompensaAura);
+
       const ORDEN = ['tierra_del_fuego', 'santa_cruz', 'buenos_aires', 'santa_fe', 'cordoba', 'san_juan', 'salta'];
       const indexActual = ORDEN.indexOf(this.provinciaId);
       const siguienteProvincia = ORDEN[indexActual + 1] || this.provinciaId;
@@ -531,7 +569,7 @@ _crearFondo() {
       this.time.delayedCall(4000, () => {
         this.scene.start('AuraShop', {
           aura: this.aura,
-          recompensaAura: this.recompensaAura,
+          recompensaAura: 0,
           provinciaId: this.provinciaId,
           powerupsActivos: this.powerupsActivos,
           provinciasDesbloq: [...this.provinciasDesbloq, siguienteProvincia],
@@ -544,10 +582,12 @@ _crearFondo() {
       });
     }
   }
-
+  
   _onAuraGanada(cantidad) {
+    if (cantidad <= 0) return;
+
     this.aura += cantidad;
-    this._lblAura.setText(`🪙 ${this.aura}`);
+    this._lblAura.setText(this.aura.toString());
 
     const lbl = this.add.text(IZQ_W / 2, 240, `+${cantidad}`, {
       fontSize: '20px', color: '#EF9F27', fontStyle: 'bold',
