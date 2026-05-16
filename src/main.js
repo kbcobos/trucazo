@@ -3,6 +3,7 @@ import { MainMenuScene }    from './scenes/MainMenuScene.js';
 import { GameBoardScene }   from './scenes/GameBoardScene.js';
 import { AuraShopScene }    from './scenes/AuraShopScene.js';
 import { CampaignMapScene } from './scenes/CampaignMapScene.js';
+import { CustomizationScene } from './scenes/CustomizationScene.js';
 
 const config = {
   type: Phaser.AUTO,
@@ -14,7 +15,7 @@ const config = {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH
   },
-  scene: [MainMenuScene, GameBoardScene, AuraShopScene, CampaignMapScene]
+  scene: [MainMenuScene, GameBoardScene, AuraShopScene, CampaignMapScene, CustomizationScene]
 };
 
 new Phaser.Game(config);
