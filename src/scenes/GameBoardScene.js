@@ -578,7 +578,7 @@ preload() {
       });
     } else {
       this.time.delayedCall(4000, () => {
-        this.scene.restart();
+        this._mostrarMenuRevancha();
       });
     }
   }
@@ -660,6 +660,64 @@ preload() {
           repeat: -1
         });
       }
+    });
+  }
+
+  _mostrarMenuRevancha() {
+    const cx = W / 2;
+    const cy = H / 2;
+
+    this.add.rectangle(0, 0, W, H, 0x000000, 0.85).setOrigin(0).setDepth(200);
+
+    this.add.rectangle(cx, cy, 420, 200, 0x1a0e06)
+      .setStrokeStyle(2, 0x7a3030).setDepth(201);
+
+    this.add.text(cx, cy - 40, '¿QUERÉS LA REVANCHA?', {
+      fontSize: '22px', color: '#e8c88a', fontStyle: 'bold',
+      fontFamily: "'Chakra Petch', monospace"
+    }).setOrigin(0.5).setDepth(201);
+
+    const btnSiBg = this.add.rectangle(cx - 105, cy + 35, 170, 45, 0x2a1200)
+      .setStrokeStyle(1.5, 0xEF9F27).setInteractive({ useHandCursor: true }).setDepth(201);
+      
+    const btnSiTxt = this.add.text(cx - 105, cy + 35, '▶ SÍ, OTRA VEZ', {
+      fontSize: '14px', color: '#EF9F27', fontStyle: 'bold', 
+      fontFamily: "'Chakra Petch', monospace"
+    }).setOrigin(0.5).setDepth(201);
+
+    btnSiBg.on('pointerover', () => btnSiBg.setFillStyle(0x4a2000));
+    btnSiBg.on('pointerout',  () => btnSiBg.setFillStyle(0x2a1200));
+    btnSiBg.on('pointerdown', () => {
+      this.cameras.main.fadeOut(300, 0, 0, 0);
+      this.cameras.main.once('camerafadeoutcomplete', () => this.scene.restart());
+    });
+
+    const btnNoBg = this.add.rectangle(cx + 105, cy + 35, 170, 45, 0x1a0e06)
+      .setStrokeStyle(1, 0x555555).setInteractive({ useHandCursor: true }).setDepth(201);
+      
+    const btnNoTxt = this.add.text(cx + 105, cy + 35, '↩ VOLVER AL MAPA', {
+      fontSize: '12px', color: '#888888', fontStyle: 'bold', 
+      fontFamily: "'Chakra Petch', monospace"
+    }).setOrigin(0.5).setDepth(201);
+
+    btnNoBg.on('pointerover', () => { 
+      btnNoBg.setFillStyle(0x2a1608); btnNoBg.setStrokeStyle(1, 0xEF9F27); btnNoTxt.setColor('#EF9F27'); 
+    });
+    btnNoBg.on('pointerout', () => { 
+      btnNoBg.setFillStyle(0x1a0e06); btnNoBg.setStrokeStyle(1, 0x555555); btnNoTxt.setColor('#888888'); 
+    });
+    btnNoBg.on('pointerdown', () => {
+      this.cameras.main.fadeOut(300, 0, 0, 0);
+      this.cameras.main.once('camerafadeoutcomplete', () => {
+        this.scene.start('CampaignMap', {
+          powerupsActivos:   this.powerupsActivos,
+          aura:              this.aura,
+          provinciasDesbloq: this.provinciasDesbloq,
+          provinciaActual:   this.provinciaActual,
+          iconoJugador:      this.iconoJugador,
+          marcoJugador:      this.marcoJugador
+        });
+      });
     });
   }
 
