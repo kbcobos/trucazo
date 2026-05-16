@@ -30,14 +30,10 @@ export class AuraShopScene extends Phaser.Scene {
     for (const id of powerupsIds) {
       this.load.image(id, `assets/ui/powerups/${id}.png`); 
 
-      this.load.image('marco_gaucho', 'assets/ui/banners/marco_gaucho.png');
-      this.load.image('marco_pampa', 'assets/ui/banners/marco_pampa.png');
-      this.load.image('marco_dorado', 'assets/ui/banners/marco_dorado.png');
-      this.load.image('marco_perfecto', 'assets/ui/banners/marco_perfecto.png');
-      this.load.image('marco_basico', 'assets/ui/banners/marco_basico.png');
-
       this.load.image('cantinero', 'assets/ui/cantinero_mercader.png');
       this.load.image('fondo_tienda', 'assets/ui/fondo_tienda.png');
+
+      this.load.image('icono_aura', 'assets/ui/icono_aura.png');
     }
   }
 
@@ -98,10 +94,14 @@ export class AuraShopScene extends Phaser.Scene {
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
-    this._lblAura = this.add.text(cx, 130, `🪙 ${this.auraDisponible}`, {
+    if (this.textures.exists('icono_aura')) {
+      this.add.image(cx - 20, 130, 'icono_aura').setDisplaySize(30, 30);
+    }
+
+    this._lblAura = this.add.text(cx + 5, 130, this.auraDisponible.toString(), {
       fontSize: '22px', color: '#EF9F27', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace"
-    }).setOrigin(0.5);
+    }).setOrigin(0, 0.5);
 
     this.add.rectangle(cx, 150, 180, 1, 0xc09060, 0.25).setOrigin(0.5);
 
@@ -303,7 +303,7 @@ export class AuraShopScene extends Phaser.Scene {
     this.auraDisponible -= precio;
     this._powerupsComprados.push(powerup.id);
     this.powerupsActivos.push(powerup.id);
-    this._lblAura.setText(`🪙 ${this.auraDisponible}`);
+    this._lblAura.setText(this.auraDisponible.toString());
 
     if (powerup.id === 'descuento_gaucho') this.descuento += 20;
     if (powerup.id === 'pulperia_express') { this.slotsExtra += 1; this._generarOferta(); }
