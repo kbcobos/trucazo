@@ -2,32 +2,75 @@ import { LlamadaTruco, Respuesta } from '../core/Enums.js';
 
 export class TrucoManager {
   constructor() {
-    this.trucoActual = LlamadaTruco.NINGUNA;
-    this.quienCanto = '';
-    this.respuesta = Respuesta.PENDIENTE;
+    this.reset();
   }
 
   reset() {
     this.trucoActual = LlamadaTruco.NINGUNA;
-    this.quienCanto = '';
-    this.respuesta = Respuesta.PENDIENTE;
+
+    // jugador o rival
+    this.quienCanto = null;
+
+    this.respuesta = null;
+
+    // valor actual de la mano
+    this.puntosEnJuego = 1;
   }
 
   siguienteNivel() {
-    const mapa = {
-      [LlamadaTruco.NINGUNA]:     LlamadaTruco.TRUCO,
-      [LlamadaTruco.TRUCO]:       LlamadaTruco.RETRUCO,
-      [LlamadaTruco.RETRUCO]:     LlamadaTruco.VALE_CUATRO,
-      [LlamadaTruco.VALE_CUATRO]: null
-    };
-    return mapa[this.trucoActual] ?? null;
+    switch (this.trucoActual) {
+      case LlamadaTruco.NINGUNA:
+        return LlamadaTruco.TRUCO;
+
+      case LlamadaTruco.TRUCO:
+        return LlamadaTruco.RETRUCO;
+
+      case LlamadaTruco.RETRUCO:
+        return LlamadaTruco.VALE_CUATRO;
+
+      default:
+        return null;
+    }
   }
 
   getPuntosQuiero(nivel) {
-    return { [LlamadaTruco.TRUCO]:2, [LlamadaTruco.RETRUCO]:3, [LlamadaTruco.VALE_CUATRO]:4 }[nivel] ?? 1;
+    switch (nivel) {
+      case LlamadaTruco.TRUCO:
+        return 2;
+
+      case LlamadaTruco.RETRUCO:
+        return 3;
+
+      case LlamadaTruco.VALE_CUATRO:
+        return 4;
+
+      default:
+        return 1;
+    }
   }
 
   getPuntosNoQuiero(nivel) {
-    return { [LlamadaTruco.TRUCO]:1, [LlamadaTruco.RETRUCO]:2, [LlamadaTruco.VALE_CUATRO]:3 }[nivel] ?? 1;
+    switch (nivel) {
+      case LlamadaTruco.TRUCO:
+        return 1;
+
+      case LlamadaTruco.RETRUCO:
+        return 2;
+
+      case LlamadaTruco.VALE_CUATRO:
+        return 3;
+
+      default:
+        return 1;
+    }
+  }
+
+  aceptarTruco() {
+    this.respuesta = Respuesta.QUIERO;
+    this.puntosEnJuego = this.getPuntosQuiero(this.trucoActual);
+  }
+
+  rechazarTruco() {
+    this.respuesta = Respuesta.NO_QUIERO;
   }
 }

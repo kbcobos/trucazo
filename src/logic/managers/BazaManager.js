@@ -1,6 +1,7 @@
 export class BazaManager {
+
   constructor() {
-    this.bazas = [];
+    this.reset();
   }
 
   reset() {
@@ -8,44 +9,120 @@ export class BazaManager {
   }
 
   compararCartas(cJ, cR) {
-    if (cJ.valorTruco < cR.valorTruco) return 'jugador';
-    if (cJ.valorTruco > cR.valorTruco) return 'rival';
+
+    if (cJ.valorTruco < cR.valorTruco) {
+      return 'jugador';
+    }
+
+    if (cJ.valorTruco > cR.valorTruco) {
+      return 'rival';
+    }
+
     return 'empate';
   }
 
   registrarBaza(ganador) {
-    this.bazas.push({ ganador });
+
+    this.bazas.push({
+      ganador
+    });
   }
 
   hayGanadorAnticipado() {
-    let wJ = 0, wR = 0;
-    for (const b of this.bazas) {
-      if (b.ganador === 'jugador') wJ++;
-      else if (b.ganador === 'rival') wR++;
-    }
-    return wJ >= 2 || wR >= 2;
+
+    const ganador =
+      this.determinarGanadorParcial();
+
+    return ganador !== null;
   }
 
-  determinarGanadorMano() {
-    let wJ = 0, wR = 0;
-    let primerGanadorNoEmpate = '';
+  determinarGanadorParcial() {
 
-    for (let i = 0; i < this.bazas.length; i++) {
-      const b = this.bazas[i];
-      if (b.ganador === 'jugador') wJ++;
-      else if (b.ganador === 'rival') wR++;
-      
-      if (primerGanadorNoEmpate === '' && b.ganador !== 'empate') {
-        primerGanadorNoEmpate = b.ganador;
-      }
+    const b1 = this.bazas[0]?.ganador;
+    const b2 = this.bazas[1]?.ganador;
+
+    // todavía no hay suficientes bazas
+    if (!b1) {
+      return null;
     }
 
-    if (wJ >= 2) return 'jugador';
-    if (wR >= 2) return 'rival';
+    // gana primera y segunda
+    if (
+      b1 === 'jugador' &&
+      b2 === 'jugador'
+    ) {
+      return 'jugador';
+    }
 
-    if (primerGanadorNoEmpate !== '') return primerGanadorNoEmpate;
+    if (
+      b1 === 'rival' &&
+      b2 === 'rival'
+    ) {
+      return 'rival';
+    }
 
-    return 'jugador';
+    // gana primera + empata segunda
+    if (
+      (b1 === 'jugador' || b1 === 'rival') &&
+      b2 === 'empate'
+    ) {
+      return b1;
+    }
+
+    // primera parda + gana segunda
+    if (
+      b1 === 'empate' &&
+      (b2 === 'jugador' || b2 === 'rival')
+    ) {
+      return b2;
+    }
+
+    return null;
+  }
+
+  determinarGanadorMano(manoActual) {
+
+    const parcial =
+      this.determinarGanadorParcial();
+
+    if (parcial) {
+      return parcial;
+    }
+
+    const b1 = this.bazas[0]?.ganador;
+    const b2 = this.bazas[1]?.ganador;
+    const b3 = this.bazas[2]?.ganador;
+
+    // tercera baza normal
+    if (b3 === 'jugador') {
+      return 'jugador';
+    }
+
+    if (b3 === 'rival') {
+      return 'rival';
+    }
+
+    // tercera parda
+
+    // gana quien ganó primera
+    if (
+      b1 === 'jugador' ||
+      b1 === 'rival'
+    ) {
+      return b1;
+    }
+
+    // primera parda
+    // gana quien ganó segunda
+    if (
+      b2 === 'jugador' ||
+      b2 === 'rival'
+    ) {
+      return b2;
+    }
+
+    // todas pardas -> gana mano
+    return this.manoActual;;
   }
 
   get cantidadBazas() {
