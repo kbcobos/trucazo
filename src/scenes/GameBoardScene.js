@@ -106,6 +106,24 @@ preload() {
     this.logic.iniciarMano();
   }
 
+  _actualizarIndicadorMano() {
+
+  const esJugadorMano =
+    this.logic.manoActual === 'jugador';
+
+  this._lblMano.setText(
+    esJugadorMano
+      ? 'SOS MANO'
+      : 'ES MANO'
+  );
+
+  this._lblMano.setColor(
+    esJugadorMano
+      ? '#34a853'
+      : '#e24b4a'
+  );
+}
+
   _crearFondo() {
     this.add.rectangle(0, 0, W, H, 0x0d1a0d).setOrigin(0);
     
@@ -157,7 +175,14 @@ preload() {
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
-    this.add.text(cx, 222, `Meta: ${this.puntosParaGanar} pts`, {
+      this._lblMano = this.add.text(cx, 224, '', {
+    fontSize: '11px',
+    color: '#EF9F27',
+    fontStyle: 'bold',
+    fontFamily: "'Chakra Petch', monospace"
+  }).setOrigin(0.5);
+
+    this.add.text(cx, 242, `Meta: ${this.puntosParaGanar} pts`, {
       fontSize: '12px', color: '#7a5030',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
@@ -273,16 +298,30 @@ preload() {
   _respuestaActual = null;
   
   _responderPendiente(resp) {
-    if (this._respuestaActual === 'truco')  this.logic.responderTruco(resp);
-    if (this._respuestaActual === 'envido') this.logic.responderEnvido(resp);
-    
-    this._respuestaActual = null;
-    this._actualizarBotones();
 
-    if (this.logic.estado === EstadoJuego.TURNO_RIVAL) {
-      this.time.delayedCall(1000, () => this._turnoIA());
-    }
+  if (!this._respuestaActual) {
+    return;
   }
+
+  if (this._respuestaActual === 'truco') {
+    this.logic.responderTruco(resp);
+  }
+
+  if (this._respuestaActual === 'envido') {
+    this.logic.responderEnvido(resp);
+  }
+
+  this._respuestaActual = null;
+
+  this._actualizarBotones();
+
+  if (this.logic.estado === EstadoJuego.TURNO_RIVAL) {
+    this.time.delayedCall(
+      1000,
+      () => this._turnoIA()
+    );
+  }
+}
 
   _actualizarBotones() {
     const l        = this.logic;
@@ -373,16 +412,33 @@ preload() {
       container.setInteractive({ useHandCursor: true });
 
       container.on('pointerover', () => {
-        if (this.logic.estado === EstadoJuego.TURNO_JUGADOR)
-          this.tweens.add({ targets: container, y: y - 15, duration: 120 });
-      });
+
+  if (
+    this.logic.estado === EstadoJuego.TURNO_JUGADOR &&
+    this.logic.turnoJugador
+  ) {
+
+    this.tweens.add({
+      targets: container,
+      y: y - 15,
+      duration: 120
+    });
+  }
+});
       container.on('pointerout', () => {
         this.tweens.add({ targets: container, y, duration: 120 });
       });
       container.on('pointerdown', () => {
-        if (this.logic.estado !== EstadoJuego.TURNO_JUGADOR) return;
-        this.logic.jugarCarta(carta, true);
-      });
+
+  if (
+    this.logic.estado !== EstadoJuego.TURNO_JUGADOR ||
+    !this.logic.turnoJugador
+  ) {
+    return;
+  }
+
+  this.logic.jugarCarta(carta, true);
+});
 
       this._nodosCartasJugador.push(container);
     });
@@ -464,13 +520,31 @@ preload() {
   }
 
   _onCartasRepartidas(manoJ, manoR) {
-    this._limpiarMesa();
-    this._dibujarManoJugador(manoJ);
-    this._dibujarManoRival(manoR.length);
-    this._actualizarBotones();
-    this._actualizarBazas();
-    this._lblEstado.setText('Tu turno');
-  }
+  this._limpiarMesa();
+
+  this._dibujarManoJugador(manoJ);
+  this._dibujarManoRival(manoR.length);
+
+  this._actualizarBotones();
+  this._actualizarBazas();
+
+  this._actualizarIndicadorMano();
+
+  this._lblEstado.setText(
+    this.logic.turnoJugador
+      ? 'Tu turno'
+      : 'Turno rival'
+  );
+
+  if (
+  this.logic.estado === EstadoJuego.TURNO_RIVAL
+) {
+  this.time.delayedCall(
+    1000,
+    () => this._turnoIA()
+  );
+}
+}
 
   _onCartaJugada(carta, esJugador) {
     if (esJugador) {
@@ -492,10 +566,18 @@ preload() {
     this.time.delayedCall(1200, () => {
       this._limpiarMesa();
       this._lblEstado.setText('');
+      if (this.logic.estado === EstadoJuego.TURNO_JUGADOR) {
+      this._lblEstado.setText('Tu turno');
+    } else if (
+      this.logic.estado === EstadoJuego.TURNO_RIVAL
+    ) {
+      this._lblEstado.setText('Turno rival');
+    }
       if (this.logic.estado === EstadoJuego.TURNO_RIVAL) {
         this._turnoIA();
       }
     });
+    
   }
 
   _onTrucoCantado(_nivel, quien) {
