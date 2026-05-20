@@ -127,7 +127,7 @@ export class CampaignMapScene extends Phaser.Scene {
     this.add.rectangle(580, 0, W - 580, H, 0x0a0604, 0.97).setOrigin(0);
     this.add.rectangle(580, 0, 1, H, 0xc09060, 0.25).setOrigin(0);
     this.add.text(290, 18, 'RUTA DEL MENTIROSO', {
-      fontSize: '10px', color: 'rgba(255,220,140,0.7)',
+      fontSize: '14px', color: 'rgb(255, 255, 255)',
       fontFamily: "'Chakra Petch', monospace", letterSpacing: 5
     }).setOrigin(0.5);
   }
