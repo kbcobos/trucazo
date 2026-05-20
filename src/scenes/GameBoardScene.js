@@ -12,6 +12,10 @@ const DER_X  = 785;
 const DER_W  = 175;
 const MESA_X = IZQ_W + (DER_X - IZQ_W) / 2;
 
+const POS_MAZO_IZQ_X = 220;
+const POS_MAZO_DER_X = W - 45;
+const POS_MAZO_Y     = H / 2 - 70;
+
 const CARD_W  = 100;
 const CARD_H  = 140;
 const CARD_GAP = 10;
@@ -70,10 +74,12 @@ preload() {
   this.load.image('jefe_san_juan',         'assets/ui/jefes/Chiqui_Tapia.png');
   this.load.image('jefe_salta',            'assets/ui/jefes/Chaqueño_Palavecino.png');
 
+  this.load.image('mazo_boca_abajo', 'assets/ui/mazo_boca_abajo.png');
+
   this.load.image('icono_aura', 'assets/ui/icono_aura.png');
 }
 
-  create() {
+create() {
     this.logic = new GameEngine(this.puntosParaGanar);
     this.ia    = new IAJefe();
     this.ia.inicializar(this.provinciaId, this.logic);
@@ -96,10 +102,13 @@ preload() {
       .on('auraGanada',         (amt)     => this._onAuraGanada(amt));
 
     this._crearFondo();
+    this._crearMazoVisual();
     this._crearPanelIzquierdo();
     this._crearPanelDerecho();
     this._crearLabelEstado();
     this._crearLabelFrase();
+
+    this._crearBotonSalir();
 
     this.cameras.main.fadeIn(300, 0, 0, 0);
 
@@ -107,22 +116,35 @@ preload() {
   }
 
   _actualizarIndicadorMano() {
+    const esJugadorMano = this.logic.manoActual === 'jugador';
 
-  const esJugadorMano =
-    this.logic.manoActual === 'jugador';
+    this._lblMano.setText(
+      esJugadorMano
+        ? 'TU MANO'
+        : 'SU MANO'
+    );
 
-  this._lblMano.setText(
-    esJugadorMano
-      ? 'SOS MANO'
-      : 'ES MANO'
-  );
+    this._lblMano.setColor(
+      esJugadorMano
+        ? '#34a853'
+        : '#e24b4a'
+    );
 
-  this._lblMano.setColor(
-    esJugadorMano
-      ? '#34a853'
-      : '#e24b4a'
-  );
-}
+    if (this._mazoContenedor) {
+      const targetX = esJugadorMano ? MESA_X - 190 : MESA_X + 190;
+      const targetY = H / 2;
+      const angulo = esJugadorMano ? -6 : 6; 
+
+      this.tweens.add({
+        targets: this._mazoContenedor,
+        x: targetX,
+        y: targetY,
+        angle: angulo,
+        duration: 500,
+        ease: 'Back.easeOut'
+      });
+    }
+  }
 
   _crearFondo() {
     this.add.rectangle(0, 0, W, H, 0x0d1a0d).setOrigin(0);
@@ -137,6 +159,78 @@ preload() {
     
     this.add.rectangle(0, 0, IZQ_W, H, 0x080402, 0.88).setOrigin(0);
     this.add.rectangle(DER_X, 0, DER_W, H, 0x080402, 0.88).setOrigin(0);
+
+    this._sprMazoVisual = this.add.sprite(-100, POS_MAZO_Y, 'mazo_boca_abajo')
+      .setScale(0.8)
+      .setDepth(2);
+  }
+
+  _crearMazoVisual() {
+    this._mazoContenedor = this.add.container(MESA_X, H / 2).setDepth(2);
+    
+    if (this.textures.exists('carta_reverso')) {
+      for (let i = 0; i < 3; i++) {
+        const img = this.add.image(i * 3, -i * 3, 'carta_reverso').setDisplaySize(CARD_W, CARD_H);
+        
+        if (i < 2) {
+          img.setTint(0xcccccc);
+        }
+        
+        this._mazoContenedor.add(img);
+      }
+    }
+  }
+
+  _crearBotonSalir() {
+    const btnX = 87;
+    const btnY = H - 20;
+
+    const btnBg = this.add.rectangle(btnX, btnY, 75, 26, 0x1a0e06)
+      .setOrigin(0.5)
+      .setDepth(100)
+      .setStrokeStyle(1, 0x555555)
+      .setInteractive({ useHandCursor: true });
+    
+    const btnLbl = this.add.text(btnX, btnY, '✕ SALIR', {
+      fontSize: '11px',
+      color: '#888888',
+      fontStyle: 'bold',
+      fontFamily: "'Chakra Petch', monospace"
+    }).setOrigin(0.5).setDepth(100);
+
+    btnBg.setData('label', btnLbl);
+
+    btnBg.on('pointerover', function() {
+      this.setFillStyle(0x3a1a1a);
+      this.setStrokeStyle(1, 0xe24b4a);
+      this.getData('label').setColor('#e24b4a');
+    });
+    
+    btnBg.on('pointerout', function() {
+      this.setFillStyle(0x1a0e06);
+      this.setStrokeStyle(1, 0x555555);
+      this.getData('label').setColor('#888888');
+    });
+    
+    btnBg.on('pointerdown', () => this._guardarYSalir());
+  }
+
+  _guardarYSalir() {
+    const saveData = {
+      powerupsActivos:   this.powerupsActivos,
+      aura:              this.aura,
+      provinciasDesbloq: this.provinciasDesbloq,
+      provinciaActual:   this.provinciaActual,
+      iconoJugador:      this.iconoJugador,
+      marcoJugador:      this.marcoJugador
+    };
+
+    localStorage.setItem('trucazo_save', JSON.stringify(saveData));
+
+    this.cameras.main.fadeOut(300, 0, 0, 0);
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      this.scene.start('MainMenu', saveData);
+    });
   }
 
   _crearPanelIzquierdo() {
@@ -350,11 +444,25 @@ preload() {
   }
 
   _crearLabelEstado() {
-    this._lblEstado = this.add.text(MESA_X, H / 2, '', {
-      fontSize: '13px', color: '#a08060',
+    const x = (1536 / 2);
+    const y = (864 / 2) - 40;
+
+    this._lblEstado = this.add.text(MESA_X, H / 2 - 10, '', {
+      fontSize: '20px',
+      color: '#faf618', 
+      fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace",
-      wordWrap: { width: 300 }, align: 'center'
-    }).setOrigin(0.5).setDepth(5);
+      stroke: '#000000',
+      strokeThickness: 5,
+      shadow: {
+        offsetX: 0,
+        offsetY: 0,
+        color: '#000000',
+        blur: 12,
+        stroke: true,
+        fill: true
+      }
+    }).setOrigin(0.5).setDepth(10);
   }
   
   _crearLabelFrase() {
@@ -560,7 +668,7 @@ preload() {
   }
 
   _onBazaResuelta(ganador) {
-    const msgs = { jugador:'✓ Ganaste la baza', rival:'✗ Rival ganó la baza', empate:'= Empate' };
+    const msgs = { jugador:'Ganaste la baza', rival:'Rival ganó la baza', empate:'= Empate' };
     this._lblEstado.setText(msgs[ganador] ?? '');
     this._actualizarBazas();
     this.time.delayedCall(1200, () => {
