@@ -33,36 +33,36 @@ export class MainMenuScene extends Phaser.Scene {
     this.cameras.main.fadeIn(500, 0, 0, 0);
   }
 
-_crearFondo() {
-  this.add.rectangle(0, 0, W, H, 0x1a0e06).setOrigin(0);
+  _crearFondo() {
+    this.add.rectangle(0, 0, W, H, 0x1a0e06).setOrigin(0);
 
-  if (this.textures.exists('fondo_arg')) {
-    this.add.image(0, 0, 'fondo_arg')
-      .setOrigin(0)
-      .setDisplaySize(W, H)
-      .setAlpha(0.7);
+    if (this.textures.exists('fondo_arg')) {
+      this.add.image(0, 0, 'fondo_arg')
+        .setOrigin(0)
+        .setDisplaySize(W, H)
+        .setAlpha(0.7);
+    }
+
+    for (let y = 0; y < H; y += 55)
+      this.add.rectangle(0, y, W, 1, 0xffffff, 0.02).setOrigin(0);
+
+    this.add.rectangle(480, 0, 1, H, 0xc09060, 0.15).setOrigin(0.5, 0);
+
+    for (let i = 0; i < 50; i++) {
+      const star = this.add.circle(
+        Phaser.Math.Between(0, W), Phaser.Math.Between(0, H),
+        Phaser.Math.FloatBetween(0.5, 1.5), 0xf5d78e, 0.5
+      );
+      this.tweens.add({ 
+        targets: star, 
+        alpha: { from: 0.1, to: 0.8 },
+        duration: Phaser.Math.Between(1500, 4000), 
+        yoyo: true, 
+        repeat: -1,
+        delay: Phaser.Math.Between(0, 3000) 
+      });
+    }
   }
-
-  for (let y = 0; y < H; y += 55)
-    this.add.rectangle(0, y, W, 1, 0xffffff, 0.02).setOrigin(0);
-
-  this.add.rectangle(480, 0, 1, H, 0xc09060, 0.15).setOrigin(0.5, 0);
-
-  for (let i = 0; i < 50; i++) {
-    const star = this.add.circle(
-      Phaser.Math.Between(0, W), Phaser.Math.Between(0, H),
-      Phaser.Math.FloatBetween(0.5, 1.5), 0xf5d78e, 0.5
-    );
-    this.tweens.add({ 
-      targets: star, 
-      alpha: { from: 0.1, to: 0.8 },
-      duration: Phaser.Math.Between(1500, 4000), 
-      yoyo: true, 
-      repeat: -1,
-      delay: Phaser.Math.Between(0, 3000) 
-    });
-  }
-}
 
   _crearLadoIzquierdo() {
     const cx = 240;
@@ -97,17 +97,19 @@ _crearFondo() {
 
   _crearLadoDerecho() {
     const cx = 720;
-    const startY = 120;
+    const startY = 55;
     const btnW = 330;
-    const btnH = 52;
-    const gap  = 12;
+    const btnH = 42;
+    const gap  = 8;
 
     const botones = [
-      { label: '▶  NUEVA PARTIDA', primary: true,  fn: () => this._nuevaPartida() },
-      { label: '↩  CONTINUAR',     primary: false,  fn: () => this._continuar()   },
-      { label: '◈  MODOS DE JUEGO',primary: false,  fn: () => this._modos()       },
-      { label: '⚙  OPCIONES',      primary: false,  fn: () => this._abrirOpciones() },
-      { label: '✕  SALIR',         primary: false, danger: true, fn: () => this._salir() },
+      { label: '▶  NUEVA PARTIDA',   primary: true,  fn: () => this._nuevaPartida() },
+      { label: '↩  CONTINUAR',       primary: false, fn: () => this._continuar()   },
+      { label: '≡  INSTRUCCIONES',   primary: false, fn: () => this._mostrarInstrucciones() },
+      { label: '★  CRÉDITOS',        primary: false, fn: () => this._mostrarCreditos() },
+      { label: '◈  MODOS DE JUEGO',  primary: false, fn: () => this._modos()       },
+      { label: '⚙  OPCIONES',        primary: false, fn: () => this._abrirOpciones() },
+      { label: '✕  SALIR',           primary: false, danger: true, fn: () => this._salir() },
     ];
 
     botones.forEach((btn, i) => {
@@ -119,7 +121,7 @@ _crearFondo() {
         .setStrokeStyle(1, borderColor).setInteractive({ useHandCursor: true });
 
       this.add.text(cx - btnW / 2 + 18, y + btnH / 2, btn.label, {
-        fontSize: '14px',
+        fontSize: '13px',
         color: btn.danger ? '#c07060' : btn.primary ? '#EF9F27' : '#e8c88a',
         fontStyle: btn.primary ? 'bold' : 'normal',
         fontFamily: "'Chakra Petch', monospace", letterSpacing: 2
@@ -134,9 +136,110 @@ _crearFondo() {
 
       if (!btn.primary && !btn.danger)
         this.add.text(cx + btnW / 2 - 16, y + btnH / 2, '>', {
-          fontSize: '20px', color: '#7a5030',
+          fontSize: '18px', color: '#7a5030',
           fontFamily: "'Chakra Petch', monospace"
         }).setOrigin(0.5);
+    });
+  }
+
+  _mostrarInstrucciones() {
+    const cx = W / 2;
+    const cy = H / 2;
+
+    const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.85).setOrigin(0).setInteractive();
+    const panel = this.add.rectangle(cx, cy, 680, 480, 0x1a0e06).setStrokeStyle(2, 0xc09060);
+
+    const title = this.add.text(cx, cy - 200, 'CÓMO JUGAR AL TRUCO', {
+      fontSize: '24px', color: '#EF9F27', fontStyle: 'bold', fontFamily: "'Chakra Petch', monospace"
+    }).setOrigin(0.5);
+
+    const instructions = `El Truco es un juego de engaño y estrategia.
+El objetivo es ganar 15 o 30 puntos antes que tu rival.
+
+JERARQUÍA DE CARTAS (de mayor a menor):
+1 Espada > 1 Basto > 7 Espada > 7 Oro > Todos los 3 > Todos los 2 
+> 1 Copa/Oro > Todos los 12 > Todos los 11 > Todos los 10 > Otros 7 > 6 > 5 > 4
+
+EL ENVIDO:
+Se canta en la primera baza antes del truco. Suma el valor de 2 cartas del mismo palo + 20. 
+(Ej: 7 y 6 de copas = 33). Las figuras (10, 11, 12) valen 0 para el envido.
+Si tenés cartas de distinto palo, tu envido es el valor de tu carta más alta.
+
+EL TRUCO:
+Se compite por la mano al mejor de 3 bazas. 
+El ganador del Truco suma 2 puntos. Podés desafiar subiendo la apuesta 
+a Retruco (3 puntos) y luego a Vale Cuatro (4 puntos).`;
+
+    const text = this.add.text(cx, cy - 10, instructions, {
+      fontSize: '14px', color: '#e8c88a', fontFamily: "'Chakra Petch', monospace",
+      lineSpacing: 6, align: 'center'
+    }).setOrigin(0.5);
+
+    const btnCerrar = this.add.rectangle(cx, cy + 200, 200, 40, 0x2a1200).setStrokeStyle(1, 0xEF9F27).setInteractive({ useHandCursor: true });
+    const lblCerrar = this.add.text(cx, cy + 200, 'CERRAR INSTRUCCIONES', {
+      fontSize: '13px', color: '#EF9F27', fontStyle: 'bold', fontFamily: "'Chakra Petch', monospace"
+    }).setOrigin(0.5);
+
+    const elements = [overlay, panel, title, text, btnCerrar, lblCerrar];
+
+    btnCerrar.on('pointerover', () => btnCerrar.setFillStyle(0x4a2000));
+    btnCerrar.on('pointerout', () => btnCerrar.setFillStyle(0x2a1200));
+    btnCerrar.on('pointerdown', () => elements.forEach(e => e.destroy()));
+    
+    elements.forEach(e => {
+        e.setAlpha(0);
+        this.tweens.add({ targets: e, alpha: 1, duration: 250 });
+    });
+  }
+
+  _mostrarCreditos() {
+    const cx = W / 2;
+    const cy = H / 2;
+
+    const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.85).setOrigin(0).setInteractive();
+    const panel = this.add.rectangle(cx, cy, 700, 490, 0x1a0e06).setStrokeStyle(2, 0xef9f27);
+
+    const title = this.add.text(cx, cy - 215, 'TRUCAZO — CRÉDITOS', {
+      fontSize: '24px', color: '#EF9F27', fontStyle: 'bold', fontFamily: "'Chakra Petch', monospace", letterSpacing: 2
+    }).setOrigin(0.5);
+
+    const textContent = `DESARROLLO PRINCIPAL
+Katherine Cobos
+(Lead Game Developer · Game Designer · UI/UX Design · Technical Implementation · AI Asset Integration)
+
+COLABORACIÓN
+[Nicolas Montenegro · Maximo Sarmiento · Dylan Sun]
+(Game Ideation · Gameplay Feedback · Testing)
+
+HERRAMIENTAS UTILIZADAS
+React · Vercel · GitHub · IA Generativa para Assets Visuales
+
+ESPECIAL AGRADECIMIENTO
+A la profesora Ares Mara de Introducción al Diseño de Videojuegos.
+
+Gracias por jugar Trucazo ♠️
+
+Repository & Deployment maintained by Katherine Cobos`;
+
+    const text = this.add.text(cx, cy - 10, textContent, {
+      fontSize: '14px', color: '#e8c88a', fontFamily: "'Chakra Petch', monospace",
+      lineSpacing: 5, align: 'center'
+    }).setOrigin(0.5);
+
+    const btnCerrar = this.add.rectangle(cx, cy + 210, 160, 36, 0x2a1200).setStrokeStyle(1, 0xEF9F27).setInteractive({ useHandCursor: true });
+    const lblCerrar = this.add.text(cx, cy + 210, 'VOLVER', {
+      fontSize: '12px', color: '#EF9F27', fontStyle: 'bold', fontFamily: "'Chakra Petch', monospace"
+    }).setOrigin(0.5);
+
+    const elements = [overlay, panel, title, text, btnCerrar, lblCerrar];
+
+    btnCerrar.on('pointerover', () => btnCerrar.setFillStyle(0x4a2000));
+    btnCerrar.on('pointerout', () => btnCerrar.setFillStyle(0x2a1200));
+    btnCerrar.on('pointerdown', () => elements.forEach(e => e.destroy()));
+
+    elements.forEach(e => {
+      e.setAlpha(0);
+      this.tweens.add({ targets: e, alpha: 1, duration: 250 });
     });
   }
 
