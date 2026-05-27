@@ -710,17 +710,34 @@ create() {
       : this.logic.envido.quienCanto;
 
     if (quienCanto === 'jugador') {
-      this.time.delayedCall(1000, () => {
+      this.time.delayedCall(1500, () => {
         const resp = tipo === 'truco'
           ? this.ia.responderTruco()
           : this.ia.responderEnvido();
-        if (tipo === 'truco')  this.logic.responderTruco(resp);
-        if (tipo === 'envido') this.logic.responderEnvido(resp);
-        this._actualizarBotones();
 
-        if (this.logic.estado === EstadoJuego.TURNO_RIVAL) {
-          this.time.delayedCall(800, () => this._turnoIA());
+        const accionTexto = resp === Respuesta.QUIERO ? '¡QUIERO!' : '¡NO QUIERO!';
+        const cantoTexto = tipo === 'truco' ? 'TRUCO' : 'ENVIDO';
+        
+        this._lblEstado.setText(`Rival dice: ${accionTexto} al ${cantoTexto}`);
+        
+        if (resp === Respuesta.QUIERO) {
+          this._mostrarFrase(tipo === 'truco' ? "¡Acepto el reto! Jugá..." : "¡Quiero! Veamos quién tiene más.");
+        } else {
+          this._mostrarFrase("Paso, no te tengo fe esta vuelta.");
         }
+
+        this.time.delayedCall(1500, () => {
+          if (tipo === 'truco')  this.logic.responderTruco(resp);
+          if (tipo === 'envido') this.logic.responderEnvido(resp);
+          this._actualizarBotones();
+
+          if (this.logic.estado === EstadoJuego.TURNO_JUGADOR) {
+            this._lblEstado.setText('Tu turno');
+          } else if (this.logic.estado === EstadoJuego.TURNO_RIVAL) {
+            this._lblEstado.setText('Turno rival');
+            this.time.delayedCall(1500, () => this._turnoIA());
+          }
+        });
       });
     }
   }
