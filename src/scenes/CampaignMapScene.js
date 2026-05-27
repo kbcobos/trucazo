@@ -6,7 +6,7 @@ const H = 540;
 const PROVINCIAS = [
   { 
     id:'tierra_del_fuego', nombre:'Tierra del Fuego', sub:'INICIO',
-    x:270, y:500, jefe:'Mariano Torre', apodo:'El Casi Ángel',
+    x:220, y:490, jefe:'Mariano Torre', apodo:'El Casi Ángel',
     desc:'Actor de Casi Ángeles reconvertido en jugador. Principiante con cara de protagonista.',
     dif:1, aura:80, pts:15, estado:'actual' 
   },
@@ -18,31 +18,31 @@ const PROVINCIAS = [
   },
   { 
     id:'buenos_aires', nombre:'Buenos Aires', sub:'',
-    x:390, y:240, jefe:'Ricardo Fort', apodo:'El Rey del Chocolate',
+    x:350, y:240, jefe:'Ricardo Fort', apodo:'El Rey del Chocolate',
     desc:'Millonario y extravagante. Canta truco con champagne en mano.',
     dif:3, aura:160, pts:15, estado:'locked' 
   },
   { 
     id:'santa_fe', nombre:'Santa Fe', sub:'',
-    x:330, y:200, jefe:'Lionel Messi', apodo:'La Pulga',
+    x:298, y:200, jefe:'Lionel Messi', apodo:'La Pulga',
     desc:'No habla. No farolea. No necesita. Precisión quirúrgica.',
     dif:4, aura:200, pts:15, estado:'locked' 
   },
   { 
     id:'cordoba', nombre:'Córdoba', sub:'',
-    x:280, y:220, jefe:'Rodrigo Bueno', apodo:'El Potro',
+    x:250, y:180, jefe:'Rodrigo Bueno', apodo:'El Potro',
     desc:'La cumbia en el alma y el truco en la sangre. Impredecible.',
     dif:5, aura:260, pts:30, estado:'locked' 
   },
   { 
     id:'san_juan', nombre:'San Juan', sub:'',
-    x:180, y:190, jefe:'Claudio Tapia', apodo:'Chiqui',
+    x:150, y:180, jefe:'Claudio Tapia', apodo:'Chiqui',
     desc:'Presidente de la AFA. Siempre tiene un reglamento que lo favorece.',
     dif:6, aura:340, pts:30, estado:'locked' 
   },
   { 
     id:'salta', nombre:'Salta', sub:'FINAL',
-    x:280, y:100, jefe:'El Chaqueño Palavecino', apodo:'El Cantor del Norte',
+    x:250, y:100, jefe:'El Chaqueño Palavecino', apodo:'El Cantor del Norte',
     desc:'El jefe final. Canta una chacarera antes de cada mano. 90% de farol.',
     dif:7, aura:500, pts:30, estado:'locked' 
   },
@@ -71,7 +71,7 @@ export class CampaignMapScene extends Phaser.Scene {
   }
   
   preload() {
-    this.load.image('mapa_arg', 'assets/ui/mapa_argentina.jpeg');
+    this.load.image('mapa_arg', 'assets/ui/mapa_argentina.png');
 
     this.load.image('marker_gaucho',    'assets/ui/map/marker_gaucho.png');
     this.load.image('marker_check',     'assets/ui/map/marker_check.png');
@@ -91,6 +91,7 @@ export class CampaignMapScene extends Phaser.Scene {
     this._dibujarProvincias();
     this._crearPanelInfoVacio();
     this._crearBotonVolver();
+    this._crearBotonTienda();
 
     this.cameras.main.fadeIn(400, 0, 0, 0);
   }
@@ -100,7 +101,7 @@ export class CampaignMapScene extends Phaser.Scene {
       this.add.rectangle(0, 0, W, H, 0x0d1a2a).setOrigin(0);
       this.add.image(0, 0, 'mapa_arg')
       .setOrigin(0, 0)
-      .setDisplaySize(580, H);
+      .setDisplaySize(520, H);
     } else {
         const g = this.add.graphics();
         g.fillStyle(0x0d1a2a, 1);
@@ -124,16 +125,18 @@ export class CampaignMapScene extends Phaser.Scene {
       g.strokePath();
     }
 
-    this.add.rectangle(580, 0, W - 580, H, 0x0a0604, 0.97).setOrigin(0);
-    this.add.rectangle(580, 0, 1, H, 0xc09060, 0.25).setOrigin(0);
-    this.add.text(290, 18, 'RUTA DEL MENTIROSO', {
+    this.add.rectangle(520, 0, W - 520, H, 0x0a0604, 0.97).setOrigin(0);
+    
+    this.add.rectangle(520, 0, 1, H, 0xc09060, 0.25).setOrigin(0);
+    
+    this.add.text(260, 18, 'RUTA DEL MENTIROSO', {
       fontSize: '14px', color: 'rgb(255, 255, 255)',
       fontFamily: "'Chakra Petch', monospace", letterSpacing: 5
     }).setOrigin(0.5);
   }
 
   _crearHUD() {
-    this.add.rectangle(0, 0, 580, 36, 0x000000, 0.55).setOrigin(0);
+    this.add.rectangle(0, 0, 520, 36, 0x000000, 0.55).setOrigin(0);
     
     if (this.textures.exists('icono_aura')) {
       this.add.image(18, 17, 'icono_aura').setDisplaySize(16, 16);
@@ -144,7 +147,7 @@ export class CampaignMapScene extends Phaser.Scene {
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0, 0.5);
 
-    this.add.text(566, 17, `⚡ ${this.powerupsActivos.length} PWR`, {
+    this.add.text(506, 17, `⚡ ${this.powerupsActivos.length} PWR`, {
       fontSize: '12px', color: '#c09060',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(1, 0.5);
@@ -299,8 +302,45 @@ export class CampaignMapScene extends Phaser.Scene {
     });
   }
 
+_crearBotonTienda() {
+    const btnBg = this.add.rectangle(80, H - 75, 120, 36, 0x2a1608).setOrigin(0.5);
+    btnBg.setStrokeStyle(1.5, 0xEF9F27).setInteractive({ useHandCursor: true });
+    
+    const btnLbl = this.add.text(80, H - 75, '✦ TIENDA', {
+      fontSize: '12px', color: '#EF9F27', fontStyle: 'bold',
+      fontFamily: "'Chakra Petch', monospace", letterSpacing: 1
+    }).setOrigin(0.5);
+
+    btnBg.on('pointerover', () => {
+      btnBg.setFillStyle(0x4a2010);
+      btnBg.setScale(1.02);
+      btnLbl.setScale(1.02);
+    });
+    
+    btnBg.on('pointerout', () => {
+      btnBg.setFillStyle(0x2a1608);
+      btnBg.setScale(1);
+      btnLbl.setScale(1);
+    });
+
+    btnBg.on('pointerdown', () => {
+      this.cameras.main.fadeOut(300, 0, 0, 0);
+      this.cameras.main.once('camerafadeoutcomplete', () => {
+        this.scene.start('AuraShop', {
+          powerupsActivos:   this.powerupsActivos,
+          aura:              this.aura,
+          recompensaAura:    0, 
+          provinciasDesbloq: this.provinciasDesbloq,
+          provinciaActual:   this.provinciaActual,
+          iconoJugador:      this.iconoJugador,
+          marcoJugador:      this.marcoJugador
+        }); 
+      });
+    });
+  }
+
   _crearPanelInfoVacio() {
-    this._infoHint = this.add.text(770, H / 2,
+    this._infoHint = this.add.text(740, H / 2,
       'Tocá una provincia\npara ver el jefe.', {
       fontSize: '13px', color: '#7a5030', align: 'center',
       fontFamily: "'Chakra Petch', monospace", lineSpacing: 6
@@ -314,8 +354,9 @@ export class CampaignMapScene extends Phaser.Scene {
 
     this._provSeleccionada = prov;
     const estado = this._estadoProvincia(prov.id);
-    const cx     = 770;
-    const px     = 592;
+    
+    const cx     = 740;
+    const px     = 535;
     const pw     = W - px - 10;
 
     const mk = (obj) => { this._panelInfo.push(obj); return obj; };
