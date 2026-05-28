@@ -81,6 +81,7 @@ preload() {
 
 create() {
     this.logic = new GameEngine(this.puntosParaGanar);
+    this.logic.powerupsActivos = this.powerupsActivos;
     this.ia    = new IAJefe();
     this.ia.inicializar(this.provinciaId, this.logic);
 
@@ -107,8 +108,8 @@ create() {
     this._crearPanelDerecho();
     this._crearLabelEstado();
     this._crearLabelFrase();
-
     this._crearBotonSalir();
+    this._dibujarPowerupsActivos();
 
     this.cameras.main.fadeIn(300, 0, 0, 0);
 
@@ -215,6 +216,51 @@ create() {
     btnBg.on('pointerdown', () => this._guardarYSalir());
   }
 
+_dibujarPowerupsActivos() {
+    if (!this.powerupsActivos || this.powerupsActivos.length === 0) return;
+
+    const cx = 785 + 175 / 2;
+    
+    this.add.text(cx, 12, 'POWERUPS ACTIVOS', {
+      fontSize: '9px', color: '#7a5030', letterSpacing: 1,
+      fontFamily: "'Chakra Petch', monospace"
+    }).setOrigin(0.5);
+
+    const maxCols = 5;
+    const size = 26;
+    const gap = 4;
+    
+    const count = this.powerupsActivos.length;
+    const colsInFirstRow = Math.min(count, maxCols);
+    const rowWidth = (colsInFirstRow * size) + ((colsInFirstRow - 1) * gap);
+    const startX = cx - (rowWidth / 2) + (size / 2);
+
+    this.powerupsActivos.forEach((pId, i) => {
+      if (this.textures.exists(pId)) {
+        const col = i % maxCols;
+        const row = Math.floor(i / maxCols);
+        
+        let x = startX + (col * (size + gap));
+        
+        if (row > 0) {
+           const itemsInThisRow = Math.min(count - (row * maxCols), maxCols);
+           const thisRowWidth = (itemsInThisRow * size) + ((itemsInThisRow - 1) * gap);
+           const thisStartX = cx - (thisRowWidth / 2) + (size / 2);
+           x = thisStartX + (col * (size + gap));
+        }
+
+        const y = 30 + (row * (size + gap));
+
+        const bg = this.add.rectangle(x, y, size, size, 0x1a0e06).setStrokeStyle(1, 0xEF9F27);
+        const icono = this.add.image(x, y, pId).setDisplaySize(size - 4, size - 4);
+        
+        bg.setInteractive();
+        bg.on('pointerover', () => bg.setStrokeStyle(1, 0xffffff));
+        bg.on('pointerout', () => bg.setStrokeStyle(1, 0xEF9F27));
+      }
+    });
+  }
+
   _guardarYSalir() {
     const saveData = {
       powerupsActivos:   this.powerupsActivos,
@@ -234,115 +280,111 @@ create() {
   }
 
   _crearPanelIzquierdo() {
-    const cx = IZQ_W / 2;
+    const cx = 175 / 2;
 
-    if (this.textures.exists('marco_gaucho')) {
-      this.add.image(cx, 60, 'marco_gaucho').setDisplaySize(150, 110);
-    }
-    
     if (this.textures.exists(`jefe_${this.provinciaId}`)) {
-      this.add.image(cx, 60, `jefe_${this.provinciaId}`).setDisplaySize(90, 90);
+      this.add.image(cx, 70, `jefe_${this.provinciaId}`).setDisplaySize(86, 86);
+    }
+    if (this.textures.exists('marco_gaucho')) {
+      this.add.image(cx, 70, 'marco_gaucho').setDisplaySize(115, 115); 
     }
 
-    this.add.text(cx, 128, this.ia.getNombre(), {
+    this.add.text(cx, 135, this.ia.getNombre(), {
       fontSize: '15px', color: '#EF9F27', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace",
-      wordWrap: { width: IZQ_W - 14 }, align: 'center',
+      wordWrap: { width: 175 - 14 }, align: 'center',
       lineSpacing: -2 
     }).setOrigin(0.5);
 
-    this.add.text(cx, 154, `"${this.ia.getApodo()}"`, {
+    this.add.text(cx, 155, `"${this.ia.getApodo()}"`, {
       fontSize: '12px', color: '#c09060',
       fontFamily: "'Chakra Petch', monospace",
-      wordWrap: { width: IZQ_W - 14 }, align: 'center'
+      wordWrap: { width: 175 - 14 }, align: 'center'
     }).setOrigin(0.5);
 
-    this.add.rectangle(cx, 166, IZQ_W - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
+    this.add.rectangle(cx, 170, 175 - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
 
-    this._lblPtsRival = this.add.text(cx, 184, 'Rival: 0', {
+    this._lblPtsRival = this.add.text(cx, 188, 'Rival: 0', {
       fontSize: '13px', color: '#e8c88a', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
-    this._lblPtsJugador = this.add.text(cx, 204, 'Vos: 0', {
+    this._lblPtsJugador = this.add.text(cx, 208, 'Vos: 0', {
       fontSize: '13px', color: '#EF9F27', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
-      this._lblMano = this.add.text(cx, 224, '', {
-    fontSize: '11px',
-    color: '#EF9F27',
-    fontStyle: 'bold',
-    fontFamily: "'Chakra Petch', monospace"
-  }).setOrigin(0.5);
+    this._lblMano = this.add.text(cx, 228, '', {
+      fontSize: '11px', color: '#EF9F27', fontStyle: 'bold',
+      fontFamily: "'Chakra Petch', monospace"
+    }).setOrigin(0.5);
 
-    this.add.text(cx, 242, `Meta: ${this.puntosParaGanar} pts`, {
+    this.add.rectangle(cx, 244, 175 - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
+
+    this.add.text(cx, 258, `Meta: ${this.puntosParaGanar} pts`, {
       fontSize: '12px', color: '#7a5030',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
-    this.add.rectangle(cx, 238, IZQ_W - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
-
-    this.add.text(cx, 254, 'BAZAS', {
+    this.add.text(cx, 280, 'BAZAS', {
       fontSize: '9px', color: '#7a5030', letterSpacing: 3,
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
     this._bazaIndicadores = [];
     for (let i = 0; i < 3; i++) {
-      const ind = this.add.rectangle(cx - 24 + i * 24, 274, 18, 18, 0x333333)
+      const ind = this.add.rectangle(cx - 24 + i * 24, 298, 18, 18, 0x333333)
         .setStrokeStyle(1, 0x7a5030);
       this._bazaIndicadores.push(ind);
     }
 
-    this.add.rectangle(cx, 296, IZQ_W - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
+    this.add.rectangle(cx, 320, 175 - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
 
-    this.add.text(cx, 312, 'AURA', {
+    this.add.text(cx, 336, 'AURA', {
       fontSize: '9px', color: '#7a5030', letterSpacing: 3,
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
     if (this.textures.exists('icono_aura')) {
-      this.add.image(cx - 15, 332, 'icono_aura').setDisplaySize(20, 20);
+      this.add.image(cx - 18, 356, 'icono_aura').setDisplaySize(20, 20);
     }
 
-    this._lblAura = this.add.text(cx + 5, 332, `${this.aura}`, {
+    this._lblAura = this.add.text(cx + 2, 356, `${this.aura}`, {
       fontSize: '14px', color: '#EF9F27', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0, 0.5);
 
-    this.add.rectangle(cx, 370, IZQ_W - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
+    this.add.rectangle(cx, 378, 175 - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
 
-    if (this.textures.exists(this.marcoJugador)) {
-      this.add.image(cx, 430, this.marcoJugador).setDisplaySize(160, 120);
-    }
-    
     if (this.textures.exists(this.iconoJugador)) {
-      this.add.image(cx, 430, this.iconoJugador).setDisplaySize(90, 90);
+      this.add.image(cx, 435, this.iconoJugador).setDisplaySize(60, 60);
+    }
+    if (this.textures.exists(this.marcoJugador)) {
+      this.add.image(cx, 435, this.marcoJugador).setDisplaySize(120, 120);
     }
 
-    this.add.text(cx, 500, 'JUGADOR', {
+    this.add.text(cx, 492, 'JUGADOR', {
       fontSize: '14px', color: '#e8c88a', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace", letterSpacing: 2
     }).setOrigin(0.5);
   }
 
   _crearPanelDerecho() {
-    const cx  = DER_X + DER_W / 2;
-    const bW  = DER_W - 18;
-    const bH  = 36;
-    const gap = 7;
+    const cx  = 785 + 175 / 2;
+    const bW  = 175 - 18;
+    const bH  = 34;
+    const gap = 6;
 
     const defs = [
-      { id:'truco',      label:'TRUCO',       y:50  },
-      { id:'retruco',    label:'RETRUCO',     y:50  + bH + gap },
-      { id:'valecuatro', label:'VALE CUATRO', y:50  + (bH + gap) * 2 },
-      { id:'envido', label:'ENVIDO',    y:210 },
-      { id:'real',   label:'REAL ENV',  y:210 + bH + gap },
-      { id:'falta',  label:'FALTA ENV', y:210 + (bH + gap) * 2 },
-      { id:'quiero',   label:'✓ QUIERO',    y:370, col:0x1a3a1a, brd:0x34a853 },
-      { id:'noquiero', label:'✗ NO QUIERO', y:370 + bH + gap, col:0x3a1a1a, brd:0xe24b4a },
-      { id:'mazo', label:'IR AL MAZO', y:490, col:0x1a1a1a, brd:0x555555 },
+      { id:'truco',      label:'TRUCO',       y: 90  },
+      { id:'retruco',    label:'RETRUCO',     y: 90  + bH + gap },
+      { id:'valecuatro', label:'VALE CUATRO', y: 90  + (bH + gap) * 2 },
+      { id:'envido',     label:'ENVIDO',      y: 235 },
+      { id:'real',       label:'REAL ENV',    y: 235 + bH + gap },
+      { id:'falta',      label:'FALTA ENV',   y: 235 + (bH + gap) * 2 },
+      { id:'quiero',     label:'QUIERO',    y: 380, col:0x1a3a1a, brd:0x34a853 },
+      { id:'noquiero',   label:'NO QUIERO', y: 380 + bH + gap, col:0x3a1a1a, brd:0xe24b4a },
+      { id:'mazo',       label:'IR AL MAZO',  y: 495, col:0x1a1a1a, brd:0x555555 },
     ];
 
     this._panelAcciones = {};
@@ -367,9 +409,9 @@ create() {
       this._panelAcciones[d.id] = { bg, lbl };
     }
 
-    this.add.text(cx, 32,  'TRUCO',  { fontSize:'9px', color:'#7a5030', letterSpacing:3, fontFamily:"'Chakra Petch', monospace" }).setOrigin(0.5);
-    this.add.text(cx, 192, 'ENVIDO', { fontSize:'9px', color:'#7a5030', letterSpacing:3, fontFamily:"'Chakra Petch', monospace" }).setOrigin(0.5);
-    this.add.text(cx, 352, 'CANTOS', { fontSize:'9px', color:'#7a5030', letterSpacing:3, fontFamily:"'Chakra Petch', monospace" }).setOrigin(0.5);
+    this.add.text(cx, 75,  'TRUCO',  { fontSize:'9px', color:'#7a5030', letterSpacing:3, fontFamily:"'Chakra Petch', monospace" }).setOrigin(0.5);
+    this.add.text(cx, 220, 'ENVIDO', { fontSize:'9px', color:'#7a5030', letterSpacing:3, fontFamily:"'Chakra Petch', monospace" }).setOrigin(0.5);
+    this.add.text(cx, 365, 'CANTOS', { fontSize:'9px', color:'#7a5030', letterSpacing:3, fontFamily:"'Chakra Petch', monospace" }).setOrigin(0.5);
 
     this._actualizarBotones();
   }
@@ -710,13 +752,21 @@ create() {
       : this.logic.envido.quienCanto;
 
     if (quienCanto === 'jugador') {
-      this.time.delayedCall(1500, () => {
+      this.time.delayedCall(1000, () => {
         const resp = tipo === 'truco'
           ? this.ia.responderTruco()
           : this.ia.responderEnvido();
 
         const accionTexto = resp === Respuesta.QUIERO ? '¡QUIERO!' : '¡NO QUIERO!';
-        const cantoTexto = tipo === 'truco' ? 'TRUCO' : 'ENVIDO';
+        
+        let cantoTexto = '';
+        if (tipo === 'truco') {
+          const nivelesTruco = { 1: 'TRUCO', 2: 'RETRUCO', 3: 'VALE CUATRO' };
+          cantoTexto = nivelesTruco[this.logic.truco.trucoActual] || 'TRUCO';
+        } else {
+          const nivelesEnvido = { 1: 'ENVIDO', 2: 'ENVIDO ENVIDO', 3: 'REAL ENVIDO', 4: 'FALTA ENVIDO' };
+          cantoTexto = nivelesEnvido[this.logic.envido.envidoActual] || 'ENVIDO';
+        }
         
         this._lblEstado.setText(`Rival dice: ${accionTexto} al ${cantoTexto}`);
         
@@ -735,7 +785,7 @@ create() {
             this._lblEstado.setText('Tu turno');
           } else if (this.logic.estado === EstadoJuego.TURNO_RIVAL) {
             this._lblEstado.setText('Turno rival');
-            this.time.delayedCall(1500, () => this._turnoIA());
+            this.time.delayedCall(1000, () => this._turnoIA());
           }
         });
       });
