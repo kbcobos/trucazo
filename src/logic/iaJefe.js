@@ -148,15 +148,23 @@ export class IAJefe {
       }
     }
 
-    if (logic.puedeCantarTruco('rival') && logic.truco.trucoActual === LlamadaTruco.NINGUNA) {
-      if (Math.random() < this._probTrucoAjustada()) {
-        return { accion: 'cantar_truco' };
-      }
-    }
-
     if (logic.puedeCantarEnvido('rival') && logic.bazas.cantidadBazas === 0) {
       if (Math.random() < this._probEnvidoAjustada()) {
         return { accion: 'cantar_envido', nivelEnvido: this._elegirNivelEnvido() };
+      }
+    }
+
+    if (logic.puedeCantarTruco('rival')) {
+      const nivelTruco = logic.truco.trucoActual;
+      
+      if (nivelTruco === LlamadaTruco.NINGUNA && Math.random() < this._probTrucoAjustada()) {
+        return { accion: 'cantar_truco' };
+      } 
+      else if (nivelTruco === LlamadaTruco.TRUCO && this.quiereRetruco()) {
+        return { accion: 'cantar_truco' };
+      } 
+      else if (nivelTruco === LlamadaTruco.RETRUCO && this.quiereRetruco()) {
+        return { accion: 'cantar_truco' }; 
       }
     }
 
