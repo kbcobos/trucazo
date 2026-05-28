@@ -94,6 +94,12 @@ export class GameEngine {
 
       this.manoJugador.splice(idx, 1);
       this.cartaJugadaJugador = carta;
+      
+      if (this.powerupsActivos && this.powerupsActivos.includes('mazo_enganio')) {
+        this.auraGanadaMano += 2;
+        this.emit('auraGanada', 2);
+      }
+
       this.turnoActual = 'rival';
       this.estado = EstadoJuego.TURNO_RIVAL;
     } else {
@@ -240,29 +246,28 @@ export class GameEngine {
     if (resp === Respuesta.QUIERO) {
       this.envido.aceptar();
 
-      const ptsJugador = this.envido.calcularPuntosMano(this.manoJugador);
-      const ptsRival = this.envido.calcularPuntosMano(this.manoRival);
+      const ptsJugador = this.envido.calcularPuntosMano(this.manoJugador, this.powerupsActivos, true);
+      const ptsRival = this.envido.calcularPuntosMano(this.manoRival, this.powerupsActivos, false);
 
       let puntosGanados = 0;
       const hayFalta = this.envido.cantos.includes(LlamadaEnvido.FALTA_ENVIDO);
 
       if (hayFalta) {
-        puntosGanados = this.envido.getPuntosFalta(
-          this.puntosParaGanar,
-          this.puntosJugador,
-          this.puntosRival
-        );
+        puntosGanados = this.envido.getPuntosFalta(this.puntosParaGanar, this.puntosJugador, this.puntosRival);
       } else {
         puntosGanados = this.envido.puntosEnJuego;
       }
 
-      if (ptsJugador >= ptsRival) {
+      const ganadorEnvido = this.envido.determinarGanador(ptsJugador, ptsRival, this.manoActual, this.powerupsActivos);
+
+      if (ganadorEnvido === 'jugador') {
         this.puntosJugador += puntosGanados;
       } else {
         this.puntosRival += puntosGanados;
       }
 
       this.emit('envidoResuelto', ptsJugador, ptsRival);
+
     } else {
       this.envido.rechazar();
       const pts = this.envido.getPuntosNoQuiero();
