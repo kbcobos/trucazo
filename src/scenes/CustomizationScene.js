@@ -50,7 +50,7 @@ export class CustomizationScene extends Phaser.Scene {
       const y = 180;
       
       const slot = this.add.rectangle(x, y, 80, 80, 0x140b05).setStrokeStyle(1, 0x444444).setInteractive({ useHandCursor: true });
-      this.add.image(x, y, mKey).setDisplaySize(74, 64);
+      this.add.image(x, y, mKey).setDisplaySize(70, 70);
       
       slot.on('pointerdown', () => {
         this.marcoJugador = mKey;
@@ -101,21 +101,21 @@ export class CustomizationScene extends Phaser.Scene {
   _actualizarPreview() {
     this.previewContainer.removeAll(true);
 
-    const fondoPreview = this.add.rectangle(0, 0, 220, 240, 0x110904).setStrokeStyle(1, 0xc09060, 0.3);
+    const fondoPreview = this.add.rectangle(0, 0, 320, 340, 0x110904).setStrokeStyle(1, 0xc09060, 0.3);
     this.previewContainer.add(fondoPreview);
 
-    if (this.textures.exists(this.marcoJugador)) {
-      const m = this.add.image(0, -15, this.marcoJugador).setDisplaySize(160, 120);
-      this.previewContainer.add(m);
-    }
-
     if (this.textures.exists(this.iconoJugador)) {
-      const ico = this.add.image(0, -15, this.iconoJugador).setDisplaySize(90, 90);
+      const ico = this.add.image(0, -15, this.iconoJugador).setDisplaySize(124, 124);
       this.previewContainer.add(ico);
     }
+
+    if (this.textures.exists(this.marcoJugador)) {
+      const m = this.add.image(0, -15, this.marcoJugador).setDisplaySize(240, 280);
+      this.previewContainer.add(m);
+    }
     
-    const lbl = this.add.text(0, 80, 'ASÍ TE VES EN MESA', {
-      fontSize: '12px', color: '#e8c88a', fontFamily: "'Chakra Petch'", fontStyle: 'bold', letterSpacing: 1
+    const lbl = this.add.text(0, 140, 'ASÍ TE VES EN MESA', {
+      fontSize: '14px', color: '#e8c88a', fontFamily: "'Chakra Petch'", fontStyle: 'bold', letterSpacing: 1
     }).setOrigin(0.5);
     this.previewContainer.add(lbl);
   }
