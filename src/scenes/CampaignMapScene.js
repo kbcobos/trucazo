@@ -6,43 +6,43 @@ const H = 540;
 const PROVINCIAS = [
   { 
     id:'tierra_del_fuego', nombre:'Tierra del Fuego', sub:'INICIO',
-    x:220, y:490, jefe:'Mariano Torre', apodo:'El Casi Ángel',
+    x:320, y:490, jefe:'Mariano Torre', apodo:'El Casi Ángel',
     desc:'Actor de Casi Ángeles reconvertido en jugador. Principiante con cara de protagonista.',
     dif:1, aura:80, pts:10, estado:'actual' 
   },
   { 
     id:'santa_cruz', nombre:'Santa Cruz', sub:'',
-    x:185, y:400, jefe:'Néstor Kirchner', apodo:'El Pingüino',
+    x:300, y:400, jefe:'Néstor Kirchner', apodo:'El Pingüino',
     desc:'Nunca muestra lo que tiene. Cada canto es una negociación política.',
     dif:2, aura:120, pts:12, estado:'locked' 
   },
   { 
     id:'buenos_aires', nombre:'Buenos Aires', sub:'',
-    x:350, y:240, jefe:'Ricardo Fort', apodo:'El Rey del Chocolate',
+    x:420, y:240, jefe:'Ricardo Fort', apodo:'El Rey del Chocolate',
     desc:'Millonario y extravagante. Canta truco con champagne en mano.',
     dif:3, aura:160, pts:15, estado:'locked' 
   },
   { 
     id:'santa_fe', nombre:'Santa Fe', sub:'',
-    x:298, y:200, jefe:'Lionel Messi', apodo:'La Pulga',
+    x:390, y:200, jefe:'Lionel Messi', apodo:'La Pulga',
     desc:'No habla. No farolea. No necesita. Precisión quirúrgica.',
     dif:4, aura:200, pts:15, estado:'locked' 
   },
   { 
     id:'cordoba', nombre:'Córdoba', sub:'',
-    x:250, y:180, jefe:'Rodrigo Bueno', apodo:'El Potro',
+    x:350, y:180, jefe:'Rodrigo Bueno', apodo:'El Potro',
     desc:'La cumbia en el alma y el truco en la sangre. Impredecible.',
     dif:5, aura:260, pts:18, estado:'locked' 
   },
   { 
     id:'san_juan', nombre:'San Juan', sub:'',
-    x:150, y:180, jefe:'Claudio Tapia', apodo:'Chiqui',
+    x:280, y:180, jefe:'Claudio Tapia', apodo:'Chiqui',
     desc:'Presidente de la AFA. Siempre tiene un reglamento que lo favorece.',
     dif:6, aura:340, pts:25, estado:'locked' 
   },
   { 
     id:'salta', nombre:'Salta', sub:'FINAL',
-    x:250, y:100, jefe:'El Chaqueño Palavecino', apodo:'El Cantor del Norte',
+    x:350, y:100, jefe:'El Chaqueño Palavecino', apodo:'El Cantor del Norte',
     desc:'El jefe final. Canta una chacarera antes de cada mano. 90% de farol.',
     dif:7, aura:500, pts:30, estado:'locked' 
   },
@@ -112,16 +112,20 @@ export class CampaignMapScene extends Phaser.Scene {
   _crearFondo() {
     if (this.textures.exists('mapa_arg')) {
       this.add.rectangle(0, 0, W, H, 0x0d1a2a).setOrigin(0);
-      this.add.image(0, 0, 'mapa_arg')
-      .setOrigin(0, 0)
-      .setDisplaySize(520, H);
+      
+      this.add.rectangle(0, 0, 170, H, 0x0a0604, 0.97).setOrigin(0);
+      this.add.rectangle(170, 0, 1, H, 0xc09060, 0.25).setOrigin(0);
+      
+      this.add.image(170, 0, 'mapa_arg')
+        .setOrigin(0, 0)
+        .setDisplaySize(380, H);
     } else {
-        const g = this.add.graphics();
-        g.fillStyle(0x0d1a2a, 1);
-        g.fillRect(0, 0, W, H);
-        g.fillStyle(0x1e3320, 1);
-        g.lineStyle(1, 0x2a4a2a, 1);
-        g.beginPath();
+      const g = this.add.graphics();
+      g.fillStyle(0x0d1a2a, 1);
+      g.fillRect(0, 0, W, H);
+      g.fillStyle(0x1e3320, 1);
+      g.lineStyle(1, 0x2a4a2a, 1);
+      g.beginPath();
       const pts = [
         [255,50],[305,46],[330,65],[345,90],[335,125],
         [355,155],[360,195],[350,230],[365,260],[355,295],
@@ -138,29 +142,28 @@ export class CampaignMapScene extends Phaser.Scene {
       g.strokePath();
     }
 
-    this.add.rectangle(520, 0, W - 520, H, 0x0a0604, 0.97).setOrigin(0);
+    this.add.rectangle(550, 0, W - 550, H, 0x0a0604, 0.97).setOrigin(0);
+    this.add.rectangle(550, 0, 1, H, 0xc09060, 0.25).setOrigin(0);
     
-    this.add.rectangle(520, 0, 1, H, 0xc09060, 0.25).setOrigin(0);
-    
-    this.add.text(260, 18, 'RUTA DEL MENTIROSO', {
+    this.add.text(365, 18, 'RUTA DEL MENTIROSO', {
       fontSize: '14px', color: 'rgb(255, 255, 255)',
       fontFamily: "'Chakra Petch', monospace", letterSpacing: 5
     }).setOrigin(0.5);
   }
 
   _crearHUD() {
-    this.add.rectangle(0, 0, 520, 36, 0x000000, 0.55).setOrigin(0);
+    this.add.rectangle(170, 0, 520, 36, 0x000000, 0.55).setOrigin(0);
     
     if (this.textures.exists('icono_aura')) {
-      this.add.image(18, 17, 'icono_aura').setDisplaySize(16, 16);
+      this.add.image(190, 17, 'icono_aura').setDisplaySize(18, 18);
     }
 
-    this._lblAura = this.add.text(32, 17, `${this.aura} AURA`, {
+    this._lblAura = this.add.text(200, 17, `${this.aura} AURA`, {
       fontSize: '12px', color: '#EF9F27', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0, 0.5);
 
-    this.add.text(506, 17, `⚡ ${this.powerupsActivos.length} PWR`, {
+    this.add.text(540, 17, `⚡ ${this.powerupsActivos.length} PWR`, {
       fontSize: '12px', color: '#c09060',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(1, 0.5);
@@ -280,10 +283,10 @@ export class CampaignMapScene extends Phaser.Scene {
   }
 
   _crearBotonVolver() {
-    const btnBg = this.add.rectangle(80, H - 30, 120, 36, 0x1a0e06).setOrigin(0.5);
+    const btnBg = this.add.rectangle(85, H - 30, 120, 36, 0x1a0e06).setOrigin(0.5);
     btnBg.setStrokeStyle(1, 0x555555).setInteractive({ useHandCursor: true });
     
-    const btnLbl = this.add.text(80, H - 30, '← MENÚ', {
+    const btnLbl = this.add.text(85, H - 30, '← MENÚ', {
       fontSize: '12px', color: '#888888', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
@@ -316,10 +319,10 @@ export class CampaignMapScene extends Phaser.Scene {
   }
 
 _crearBotonTienda() {
-    const btnBg = this.add.rectangle(80, H - 75, 120, 36, 0x2a1608).setOrigin(0.5);
+    const btnBg = this.add.rectangle(85, H - 75, 120, 36, 0x2a1608).setOrigin(0.5);
     btnBg.setStrokeStyle(1.5, 0xEF9F27).setInteractive({ useHandCursor: true });
     
-    const btnLbl = this.add.text(80, H - 75, '✦ TIENDA', {
+    const btnLbl = this.add.text(85, H - 75, '✦ TIENDA', {
       fontSize: '12px', color: '#EF9F27', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace", letterSpacing: 1
     }).setOrigin(0.5);
@@ -353,7 +356,7 @@ _crearBotonTienda() {
   }
 
   _crearPanelInfoVacio() {
-    this._infoHint = this.add.text(740, H / 2,
+    this._infoHint = this.add.text(755, H / 2,
       'Tocá una provincia\npara ver el jefe.', {
       fontSize: '13px', color: '#7a5030', align: 'center',
       fontFamily: "'Chakra Petch', monospace", lineSpacing: 6
@@ -368,9 +371,9 @@ _crearBotonTienda() {
     this._provSeleccionada = prov;
     const estado = this._estadoProvincia(prov.id);
     
-    const cx     = 740;
-    const px     = 535;
-    const pw     = W - px - 10;
+    const cx     = 755;
+    const px     = 565;
+    const pw     = 380;
 
     const mk = (obj) => { this._panelInfo.push(obj); return obj; };
 
