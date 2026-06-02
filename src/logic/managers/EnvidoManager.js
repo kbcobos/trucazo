@@ -78,6 +78,9 @@ export class EnvidoManager {
         case LlamadaEnvido.ENVIDO:
           total += 2;
           break;
+        case LlamadaEnvido.ENVIDO_ENVIDO:
+          total += 2;
+          break;
         case LlamadaEnvido.REAL_ENVIDO:
           total += 3;
           break;
@@ -93,20 +96,24 @@ export class EnvidoManager {
   }
 
   getPuntosNoQuiero() {
-    let puntos = 0;
-    for (const canto of this.cantos) {
-      switch (canto) {
+    if (this.cantos.length === 1) {
+      return 1;
+    }
+
+    let puntosAcumulados = 0;
+    for (let i = 0; i < this.cantos.length - 1; i++) {
+      switch (this.cantos[i]) {
         case LlamadaEnvido.ENVIDO:
-          puntos += 1;
+        case LlamadaEnvido.ENVIDO_ENVIDO:
+          puntosAcumulados += 2;
           break;
         case LlamadaEnvido.REAL_ENVIDO:
-          puntos += 1;
-          break;
-        case LlamadaEnvido.FALTA_ENVIDO:
+          puntosAcumulados += 3;
           break;
       }
     }
-    return Math.max(1, puntos);
+    
+    return puntosAcumulados;
   }
 
   aceptar() {
