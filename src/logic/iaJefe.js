@@ -181,7 +181,7 @@ export class IAJefe {
 
   responderEnvido() {
     let prob = this._perfil.probQuieroEnvido;
-    const pts = this._logic.calcularEnvido(this._logic.manoRival);
+    const pts = this._logic.puntosEnvidoRival;
     if (pts >= 28) prob = Math.min(prob + 0.25, 1.0);
     else if (pts <= 20) prob = Math.max(prob - 0.30, 0.05);
     if (this._logic.envido.envidoActual === LlamadaEnvido.FALTA_ENVIDO) prob = Math.max(prob - 0.20, 0.05);
@@ -253,7 +253,7 @@ export class IAJefe {
 
   _probEnvidoAjustada() {
     let prob = this._perfil.probCantoEnvido;
-    const pts = this._logic.calcularEnvido(this._logic.manoRival);
+    const pts = this._logic.puntosEnvidoRival;
     if (pts >= 30) prob = Math.min(prob + 0.30, 0.98);
     else if (pts >= 25) prob = Math.min(prob + 0.10, 0.90);
     else if (pts <= 18) prob = Math.max(prob - 0.20, 0.05);
@@ -261,7 +261,7 @@ export class IAJefe {
   }
 
   _elegirNivelEnvido() {
-    const pts = this._logic.calcularEnvido(this._logic.manoRival);
+    const pts = this._logic.puntosEnvidoRival;
     if (pts >= 30 && this._perfil.probValeCuatro >= 0.4) return LlamadaEnvido.FALTA_ENVIDO;
     if (pts >= 27) return LlamadaEnvido.REAL_ENVIDO;
     return LlamadaEnvido.ENVIDO;

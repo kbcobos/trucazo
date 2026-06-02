@@ -56,6 +56,9 @@ export class GameEngine {
     this.manoJugador = [this.mazo.pop(), this.mazo.pop(), this.mazo.pop()];
     this.manoRival   = [this.mazo.pop(), this.mazo.pop(), this.mazo.pop()];
 
+    this.puntosEnvidoJugador = this.envido.calcularPuntosMano(this.manoJugador, this.powerupsActivos, true);
+    this.puntosEnvidoRival   = this.envido.calcularPuntosMano(this.manoRival, this.powerupsActivos, false);
+
     this.turnoActual = this.manoActual;
     this.turnoJugador = this.turnoActual === 'jugador';
 
@@ -246,8 +249,8 @@ export class GameEngine {
     if (resp === Respuesta.QUIERO) {
       this.envido.aceptar();
 
-      const ptsJugador = this.envido.calcularPuntosMano(this.manoJugador, this.powerupsActivos, true);
-      const ptsRival = this.envido.calcularPuntosMano(this.manoRival, this.powerupsActivos, false);
+      const ptsJugador = this.puntosEnvidoJugador;
+      const ptsRival = this.puntosEnvidoRival;
 
       let puntosGanados = 0;
       const hayFalta = this.envido.cantos.includes(LlamadaEnvido.FALTA_ENVIDO);
