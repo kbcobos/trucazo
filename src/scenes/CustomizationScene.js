@@ -84,14 +84,18 @@ export class CustomizationScene extends Phaser.Scene {
     btnBg.on('pointerdown', () => {
       this.cameras.main.fadeOut(400, 0, 0, 0);
       this.cameras.main.once('camerafadeoutcomplete', () => {
-        this.scene.start('MainMenu', {
+
+        const saveData = {
           powerupsActivos:   this.powerupsActivos,
           aura:              this.aura,
           provinciasDesbloq: this.provinciasDesbloq,
           provinciaActual:   this.provinciaActual,
           iconoJugador:      this.iconoJugador,
           marcoJugador:      this.marcoJugador
-        });
+        };
+        localStorage.setItem('trucazo_save', JSON.stringify(saveData));
+
+        this.scene.start('MainMenu', saveData);
       });
     });
 
