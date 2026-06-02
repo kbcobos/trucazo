@@ -9,13 +9,13 @@ export class MainMenuScene extends Phaser.Scene {
   init(data) {
     const d = data || {};
 
-    this.powerupsActivos   = data.powerupsActivos   ?? [];
-    this.aura              = data.aura              ?? 0;
-    this.provinciasDesbloq = data.provinciasDesbloq ?? ['tierra_del_fuego'];
-    this.provinciaActual   = data.provinciaActual   ?? 'tierra_del_fuego';
+    this.powerupsActivos   = d.powerupsActivos   ?? [];
+    this.aura              = d.aura              ?? 0;
+    this.provinciasDesbloq = d.provinciasDesbloq ?? ['tierra_del_fuego'];
+    this.provinciaActual   = d.provinciaActual   ?? 'tierra_del_fuego';
 
-    this.iconoJugador      = data.iconoJugador      ?? 'icono_gaucho';
-    this.marcoJugador      = data.marcoJugador      ?? 'marco_basico';
+    this.iconoJugador      = d.iconoJugador      ?? 'icono_gaucho';
+    this.marcoJugador      = d.marcoJugador      ?? 'marco_basico';
   }
 
   preload() {
