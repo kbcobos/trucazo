@@ -16,8 +16,11 @@ export class AuraShopScene extends Phaser.Scene {
     this.auraDisponible  = (data.aura ?? 0) + (data.recompensaAura ?? 0);
     this.provinciaId     = data.provinciaId    ?? 'tierra_del_fuego';
     this.powerupsActivos = data.powerupsActivos ?? [];
+    this.iconoJugador      = data.iconoJugador      ?? 'icono_gaucho';
+    this.marcoJugador      = data.marcoJugador      ?? 'marco_basico';
     this.descuento       = this.powerupsActivos.includes('descuento_gaucho') ? 20 : 0;
     this.slotsExtra      = this.powerupsActivos.includes('pulperia_express') ? 1  : 0;
+    this._transicionando   = false;
   }
   
   preload() {
@@ -338,13 +341,17 @@ export class AuraShopScene extends Phaser.Scene {
   }
 
   _continuar() {
-    this.cameras.main.fadeOut(400, 0, 0, 0);
-    this.cameras.main.once('camerafadeoutcomplete', () => {
+    if (this._transicionando) return;
+    this._transicionando = true;
+    this.cameras.main.fadeOut(300, 0, 0, 0);
+    this.time.delayedCall(350, () => {
       this.scene.start('CampaignMap', {
-        powerupsActivos: this.powerupsActivos,
-        aura: this.auraDisponible,
+        powerupsActivos:   this.powerupsActivos,
+        aura:              this.auraDisponible,
         provinciasDesbloq: this.provinciasDesbloq,
-        provinciaActual:   this.provinciaActual
+        provinciaActual:   this.provinciaActual,
+        iconoJugador:      this.iconoJugador,
+        marcoJugador:      this.marcoJugador
       });
     });
   }
