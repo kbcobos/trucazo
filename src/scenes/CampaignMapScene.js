@@ -8,13 +8,13 @@ const PROVINCIAS = [
     id:'tierra_del_fuego', nombre:'Tierra del Fuego', sub:'INICIO',
     x:220, y:490, jefe:'Mariano Torre', apodo:'El Casi Ángel',
     desc:'Actor de Casi Ángeles reconvertido en jugador. Principiante con cara de protagonista.',
-    dif:1, aura:80, pts:15, estado:'actual' 
+    dif:1, aura:80, pts:10, estado:'actual' 
   },
   { 
     id:'santa_cruz', nombre:'Santa Cruz', sub:'',
     x:185, y:400, jefe:'Néstor Kirchner', apodo:'El Pingüino',
     desc:'Nunca muestra lo que tiene. Cada canto es una negociación política.',
-    dif:2, aura:120, pts:15, estado:'locked' 
+    dif:2, aura:120, pts:12, estado:'locked' 
   },
   { 
     id:'buenos_aires', nombre:'Buenos Aires', sub:'',
@@ -32,13 +32,13 @@ const PROVINCIAS = [
     id:'cordoba', nombre:'Córdoba', sub:'',
     x:250, y:180, jefe:'Rodrigo Bueno', apodo:'El Potro',
     desc:'La cumbia en el alma y el truco en la sangre. Impredecible.',
-    dif:5, aura:260, pts:30, estado:'locked' 
+    dif:5, aura:260, pts:18, estado:'locked' 
   },
   { 
     id:'san_juan', nombre:'San Juan', sub:'',
     x:150, y:180, jefe:'Claudio Tapia', apodo:'Chiqui',
     desc:'Presidente de la AFA. Siempre tiene un reglamento que lo favorece.',
-    dif:6, aura:340, pts:30, estado:'locked' 
+    dif:6, aura:340, pts:25, estado:'locked' 
   },
   { 
     id:'salta', nombre:'Salta', sub:'FINAL',
@@ -91,9 +91,22 @@ export class CampaignMapScene extends Phaser.Scene {
     this._dibujarProvincias();
     this._crearPanelInfoVacio();
     this._crearBotonVolver();
-    this._crearBotonTienda();
-
+    if (this._crearBotonTienda) this._crearBotonTienda();
+    this._guardarPartida();
     this.cameras.main.fadeIn(400, 0, 0, 0);
+  }
+
+  _guardarPartida() {
+    const saveData = {
+      powerupsActivos:   this.powerupsActivos,
+      aura:              this.aura,
+      provinciasDesbloq: this.provinciasDesbloq,
+      provinciaActual:   this.provinciaActual,
+      iconoJugador:      this.iconoJugador,
+      marcoJugador:      this.marcoJugador
+    };
+
+    localStorage.setItem('trucazo_save', JSON.stringify(saveData));
   }
 
   _crearFondo() {
