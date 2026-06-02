@@ -271,11 +271,15 @@ _dibujarPowerupsActivos() {
       marcoJugador:      this.marcoJugador
     };
 
-    localStorage.setItem('trucazo_save', JSON.stringify(saveData));
+    try {
+      localStorage.setItem('trucazo_save', JSON.stringify(saveData));
+    } catch (e) {
+      console.warn('No se pudo guardar la partida:', e);
+    }
 
     this.cameras.main.fadeOut(300, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
-      this.scene.start('MainMenu', saveData);
+      this.scene.start('CampaignMap', saveData);
     });
   }
 
@@ -434,30 +438,31 @@ _dibujarPowerupsActivos() {
   _respuestaActual = null;
   
   _responderPendiente(resp) {
+    if (!this._respuestaActual) {
+      return;
+    }
 
-  if (!this._respuestaActual) {
-    return;
+    this._mostrarCartelRespuesta(true, resp);
+
+    if (this._respuestaActual === 'truco') {
+      this.logic.responderTruco(resp);
+    }
+
+    if (this._respuestaActual === 'envido') {
+      this.logic.responderEnvido(resp);
+    }
+
+    this._respuestaActual = null;
+
+    this._actualizarBotones();
+
+    if (this.logic.estado === EstadoJuego.TURNO_RIVAL) {
+      this.time.delayedCall(
+        1000,
+        () => this._turnoIA()
+      );
+    }
   }
-
-  if (this._respuestaActual === 'truco') {
-    this.logic.responderTruco(resp);
-  }
-
-  if (this._respuestaActual === 'envido') {
-    this.logic.responderEnvido(resp);
-  }
-
-  this._respuestaActual = null;
-
-  this._actualizarBotones();
-
-  if (this.logic.estado === EstadoJuego.TURNO_RIVAL) {
-    this.time.delayedCall(
-      1000,
-      () => this._turnoIA()
-    );
-  }
-}
 
   _actualizarBotones() {
     const l        = this.logic;
@@ -757,18 +762,7 @@ _dibujarPowerupsActivos() {
           ? this.ia.responderTruco()
           : this.ia.responderEnvido();
 
-        const accionTexto = resp === Respuesta.QUIERO ? '¡QUIERO!' : '¡NO QUIERO!';
-        
-        let cantoTexto = '';
-        if (tipo === 'truco') {
-          const nivelesTruco = { 1: 'TRUCO', 2: 'RETRUCO', 3: 'VALE CUATRO' };
-          cantoTexto = nivelesTruco[this.logic.truco.trucoActual] || 'TRUCO';
-        } else {
-          const nivelesEnvido = { 1: 'ENVIDO', 2: 'ENVIDO ENVIDO', 3: 'REAL ENVIDO', 4: 'FALTA ENVIDO' };
-          cantoTexto = nivelesEnvido[this.logic.envido.envidoActual] || 'ENVIDO';
-        }
-        
-        this._lblEstado.setText(`Rival dice: ${accionTexto} al ${cantoTexto}`);
+        this._mostrarCartelRespuesta(false, resp);
         
         if (resp === Respuesta.QUIERO) {
           this._mostrarFrase(tipo === 'truco' ? "¡Acepto el reto! Jugá..." : "¡Quiero! Veamos quién tiene más.");
@@ -975,6 +969,39 @@ _dibujarPowerupsActivos() {
           marcoJugador:      this.marcoJugador
         });
       });
+    });
+  }
+
+  _mostrarCartelRespuesta(esJugador, respuesta) {
+    const x = MESA_X;
+    const y = esJugador ? H / 2 + 120 : H / 2 - 120;
+    const texto = respuesta === Respuesta.QUIERO ? '¡QUIERO!' : '¡NO QUIERO!';
+    const color = respuesta === Respuesta.QUIERO ? '#34a853' : '#e24b4a';
+
+    const cartel = this.add.text(x, y, texto, {
+      fontSize: '36px',
+      color: color,
+      fontStyle: 'bold',
+      fontFamily: "'Chakra Petch', monospace",
+      stroke: '#000000',
+      strokeThickness: 5,
+      shadow: { offsetX: 2, offsetY: 2, color: '#000', blur: 4, fill: true }
+    }).setOrigin(0.5).setDepth(200).setScale(0);
+
+    this.tweens.add({
+      targets: cartel,
+      scale: 1,
+      duration: 300,
+      ease: 'Back.easeOut',
+      onComplete: () => {
+        this.tweens.add({
+          targets: cartel,
+          alpha: 0,
+          delay: 1200,
+          duration: 300,
+          onComplete: () => cartel.destroy()
+        });
+      }
     });
   }
 
