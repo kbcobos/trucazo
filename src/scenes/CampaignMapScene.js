@@ -164,7 +164,7 @@ export class CampaignMapScene extends Phaser.Scene {
     }).setOrigin(0, 0.5);
 
     this.add.text(540, 17, `⚡ ${this.powerupsActivos.length} PWR`, {
-      fontSize: '12px', color: '#c09060',
+      fontSize: '12px', color: '#ff9123', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(1, 0.5);
   }
@@ -230,7 +230,7 @@ export class CampaignMapScene extends Phaser.Scene {
 
         const iconos = { completada:'✓', actual:'★', disponible:'●', locked:'🔒' };
         this.add.text(prov.x, prov.y + 1, iconos[estado], {
-          fontSize: '10px', color: '#ffffff'
+          fontSize: '14px', color: '#ffffff'
         }).setOrigin(0.5);
 
         markerObj = g;
@@ -239,7 +239,7 @@ export class CampaignMapScene extends Phaser.Scene {
       const lblX   = prov.x > 290 ? prov.x + 20 : prov.x - 20;
       const anchor = prov.x > 290 ? 0 : 1;
       this.add.text(lblX, prov.y + 1, prov.nombre, {
-        fontSize: '12px',
+        fontSize: '12px', fontStyle: 'bold',
         color: estado === 'locked' ? '#4d4c4c' : '#ffffff',
         fontFamily: "'Chakra Petch', monospace"
       }).setOrigin(anchor, 0.8);
@@ -247,7 +247,7 @@ export class CampaignMapScene extends Phaser.Scene {
       if (prov.sub) {
         const sc = { INICIO:'#34a853', FINAL:'#e24b4a' }[prov.sub] ?? '#888';
         this.add.text(prov.x, prov.y - 26, prov.sub, {
-          fontSize: '8px', color: sc, fontStyle: 'bold',
+          fontSize: '12px', color: sc, fontStyle: 'bold',
           fontFamily: "'Chakra Petch', monospace", letterSpacing: 2
         }).setOrigin(0.5);
       }
@@ -358,7 +358,7 @@ _crearBotonTienda() {
   _crearPanelInfoVacio() {
     this._infoHint = this.add.text(755, H / 2,
       'Tocá una provincia\npara ver el jefe.', {
-      fontSize: '13px', color: '#7a5030', align: 'center',
+      fontSize: '14px', color: '#7a5030', align: 'center',
       fontFamily: "'Chakra Petch', monospace", lineSpacing: 6
     }).setOrigin(0.5);
   }
@@ -378,25 +378,25 @@ _crearBotonTienda() {
     const mk = (obj) => { this._panelInfo.push(obj); return obj; };
 
     mk(this.add.text(cx, 40, prov.jefe, {
-      fontSize: '16px', color: '#e8c88a', fontStyle: 'bold',
+      fontSize: '18px', color: '#e8c88a', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace",
       wordWrap: { width: pw - 20 }, align: 'center'
     }).setOrigin(0.5));
 
     mk(this.add.text(cx, 64, `"${prov.apodo}"`, {
-      fontSize: '12px', color: '#EF9F27',
+      fontSize: '14px', color: '#EF9F27',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5));
 
     mk(this.add.rectangle(cx, 82, pw - 20, 1, 0xc09060, 0.25).setOrigin(0.5));
 
     mk(this.add.text(cx, 98, prov.nombre.toUpperCase(), {
-      fontSize: '10px', color: '#c09060', letterSpacing: 3,
+      fontSize: '14px', color: '#c09060', letterSpacing: 3,
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5));
 
     mk(this.add.text(cx, 126, prov.desc, {
-      fontSize: '11px', color: '#a08060', align: 'center',
+      fontSize: '14px', color: '#a08060', align: 'center',
       fontFamily: "'Chakra Petch', monospace",
       wordWrap: { width: pw - 24 }
     }).setOrigin(0.5, 0));
@@ -411,11 +411,11 @@ _crearBotonTienda() {
     rows.forEach(([label, val, col], i) => {
       const y = 244 + i * 28;
       mk(this.add.text(px + 14, y, label, {
-        fontSize: '11px', color: '#7a5030',
+        fontSize: '14px', color: '#7a5030',
         fontFamily: "'Chakra Petch', monospace"
       }));
       mk(this.add.text(W - 14, y, val, {
-        fontSize: '11px', color: col,
+        fontSize: '14px', color: col,
         fontFamily: "'Chakra Petch', monospace"
       }).setOrigin(1, 0));
     });
@@ -448,7 +448,7 @@ _crearBotonTienda() {
       g2.fillCircle(lx, 478, 5);
       mk(g2);
       mk(this.add.text(lx + 9, 478, l.txt, {
-        fontSize: '9px', color: '#7a5030',
+        fontSize: '12px', color: '#af7243',
         fontFamily: "'Chakra Petch', monospace"
       }).setOrigin(0, 0.5));
     });
