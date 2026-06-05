@@ -9,9 +9,9 @@ export class CustomizationScene extends Phaser.Scene {
   init(data) {
     this.powerupsActivos   = data.powerupsActivos   ?? [];
     this.aura              = data.aura              ?? 0;
-    this.provinciasDesbloq = data.provinciasDesbloq ?? ['tierra_del_fuego'];
+    this.provinciasDesbloq = data.provinciasDesbloq ?? ['tierra_del_fuego', 'la_plata', 'mendoza', 'tucuman'];
+    this.provinciasCompletadas = data.provinciasCompletadas ?? [];
     this.provinciaActual   = data.provinciaActual   ?? 'tierra_del_fuego';
-    
     this.iconoJugador      = data.iconoJugador      ?? 'icono_gaucho';
     this.marcoJugador      = data.marcoJugador      ?? 'marco_basico';
   }
@@ -89,6 +89,7 @@ export class CustomizationScene extends Phaser.Scene {
           powerupsActivos:   this.powerupsActivos,
           aura:              this.aura,
           provinciasDesbloq: this.provinciasDesbloq,
+          provinciasCompletadas: this.provinciasCompletadas,
           provinciaActual:   this.provinciaActual,
           iconoJugador:      this.iconoJugador,
           marcoJugador:      this.marcoJugador
