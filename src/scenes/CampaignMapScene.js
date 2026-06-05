@@ -5,20 +5,20 @@ const H = 540;
 
 const PROVINCIAS = [
   { 
-    id:'tierra_del_fuego', nombre:'Tierra del Fuego', sub:'INICIO',
+    id:'tierra_del_fuego', nombre:'Tierra del Fuego', sub:'',
     x:320, y:490, jefe:'Mariano Torre', apodo:'El Casi Ángel',
     desc:'Actor de Casi Ángeles reconvertido en jugador. Principiante con cara de protagonista.',
     dif:1, aura:80, pts:10, estado:'actual' 
   },
   { 
-    id:'santa_cruz', nombre:'Santa Cruz', sub:'',
-    x:300, y:400, jefe:'Néstor Kirchner', apodo:'El Pingüino',
-    desc:'Nunca muestra lo que tiene. Cada canto es una negociación política.',
-    dif:2, aura:120, pts:12, estado:'locked' 
+    id:'la_plata', nombre:'La Plata', sub:'',
+    x:434, y:240, jefe:'René Favaloro', apodo:'El Médico',
+    desc:'Conocido por su compromiso con la salud pública.',
+    dif:3, aura:120, pts:12, estado:'locked' 
   },
   { 
     id:'buenos_aires', nombre:'Buenos Aires', sub:'',
-    x:420, y:240, jefe:'Ricardo Fort', apodo:'El Rey del Chocolate',
+    x:420, y:220, jefe:'Ricardo Fort', apodo:'El Rey del Chocolate',
     desc:'Millonario y extravagante. Canta truco con champagne en mano.',
     dif:3, aura:160, pts:15, estado:'locked' 
   },
@@ -32,23 +32,35 @@ const PROVINCIAS = [
     id:'cordoba', nombre:'Córdoba', sub:'',
     x:350, y:180, jefe:'Rodrigo Bueno', apodo:'El Potro',
     desc:'La cumbia en el alma y el truco en la sangre. Impredecible.',
-    dif:5, aura:260, pts:18, estado:'locked' 
+    dif:4, aura:260, pts:18, estado:'locked' 
   },
   { 
-    id:'san_juan', nombre:'San Juan', sub:'',
-    x:280, y:180, jefe:'Claudio Tapia', apodo:'Chiqui',
-    desc:'Presidente de la AFA. Siempre tiene un reglamento que lo favorece.',
-    dif:6, aura:340, pts:25, estado:'locked' 
+    id:'mendoza', nombre:'Mendoza', sub:'',
+    x:280, y:240, jefe:'Joaquin Salvador', apodo:'Quino',
+    desc:'Humoristica gráfico. Creador de Mafalda.',
+    dif:5, aura:340, pts:20, estado:'locked' 
   },
   { 
-    id:'salta', nombre:'Salta', sub:'FINAL',
+    id:'tucuman', nombre:'Tucumán', sub:'',
+    x:322, y:130, jefe:'Gladys', apodo:'La Bomba Tucumana',
+    desc:'Reina de la movida tropical. Canta "La pollera amarilla" antes de cada mano.',
+    dif:2, aura:340, pts:25, estado:'locked' 
+  },
+  { 
+    id:'salta', nombre:'Salta', sub:'',
     x:350, y:100, jefe:'El Chaqueño Palavecino', apodo:'El Cantor del Norte',
-    desc:'El jefe final. Canta una chacarera antes de cada mano. 90% de farol.',
+    desc:'Ícono del folklore argentino. Canta "La ley y la trampa" para intimidar a sus rivales.',
     dif:7, aura:500, pts:30, estado:'locked' 
+  },
+  { 
+    id:'jujuy', nombre:'Jujuy', sub:'',
+    x:320, y:75, jefe:'Alejandra Olivera', apodo:'La Locomotora',
+    desc:'La campeona indiscutida del truco. Nadie sabe cómo juega, pero siempre gana.',
+    dif:7, aura:500, pts:35, estado:'locked' 
   },
 ];
 
-const ORDEN = ['tierra_del_fuego','santa_cruz','buenos_aires','santa_fe','cordoba','san_juan','salta'];
+const ORDEN = ['tierra_del_fuego','la_plata','buenos_aires','santa_fe','cordoba','mendoza','tucuman','salta','jujuy'];
 const ESTADO_COLOR = { completada:0x34a853, actual:0xef9f27, disponible:0x4285f4, locked:0x555555 };
 
 const ESTADO_MARKER = {
@@ -66,7 +78,8 @@ export class CampaignMapScene extends Phaser.Scene {
     
     this.powerupsActivos   = d.powerupsActivos   ?? [];
     this.aura              = d.aura              ?? 0;
-    this.provinciasDesbloq = d.provinciasDesbloq ?? ['tierra_del_fuego'];
+    this.provinciasDesbloq = d.provinciasDesbloq ?? ['tierra_del_fuego', 'la_plata', 'mendoza', 'tucuman'];
+    this.provinciasCompletadas = d.provinciasCompletadas ?? [];
     this.provinciaActual   = d.provinciaActual   ?? 'tierra_del_fuego';    
     this.iconoJugador      = d.iconoJugador      ?? 'icono_gaucho';
     this.marcoJugador      = d.marcoJugador      ?? 'marco_basico';
@@ -89,7 +102,6 @@ export class CampaignMapScene extends Phaser.Scene {
 
     this._crearFondo();
     this._crearHUD();
-    this._dibujarRuta();
     this._dibujarProvincias();
     this._crearPanelInfoVacio();
     this._crearBotonVolver();
@@ -103,6 +115,7 @@ export class CampaignMapScene extends Phaser.Scene {
       powerupsActivos:   this.powerupsActivos,
       aura:              this.aura,
       provinciasDesbloq: this.provinciasDesbloq,
+      provinciasCompletadas: this.provinciasCompletadas,
       provinciaActual:   this.provinciaActual,
       iconoJugador:      this.iconoJugador,
       marcoJugador:      this.marcoJugador
@@ -225,7 +238,7 @@ export class CampaignMapScene extends Phaser.Scene {
 
       if (hayImagen) {
         markerObj = this.add.image(prov.x, prov.y, markerKey)
-          .setDisplaySize(38, 38);
+          .setDisplaySize(40, 40);
       } else {
         const g = this.add.graphics();
         g.fillStyle(estado === 'locked' ? 0x333333 : ESTADO_COLOR[estado], 1);
@@ -352,6 +365,7 @@ _crearBotonTienda() {
           aura:              this.aura,
           recompensaAura:    0, 
           provinciasDesbloq: this.provinciasDesbloq,
+          provinciasCompletadas: this.provinciasCompletadas,
           provinciaActual:   this.provinciaActual,
           iconoJugador:      this.iconoJugador,
           marcoJugador:      this.marcoJugador
@@ -465,6 +479,9 @@ _crearBotonTienda() {
   }
 
   _iniciarPartida(prov) {
+    this.provinciaActual = prov.id;
+    this._guardarPartida();
+
     this.cameras.main.fadeOut(400, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.start('GameBoard', {
@@ -475,6 +492,7 @@ _crearBotonTienda() {
         powerupsActivos:   this.powerupsActivos,
         aura:              this.aura,
         provinciasDesbloq: this.provinciasDesbloq,
+        provinciasCompletadas: this.provinciasCompletadas,
         provinciaActual:   this.provinciaActual,
         iconoJugador:      this.iconoJugador,
         marcoJugador:      this.marcoJugador
@@ -483,12 +501,10 @@ _crearBotonTienda() {
   }
 
   _estadoProvincia(id) {
-    if (!this.provinciasDesbloq.includes(id)) return 'locked';
-    const ia = ORDEN.indexOf(this.provinciaActual);
-    const ip = ORDEN.indexOf(id);
-    if (ip < ia) return 'completada';
     if (id === this.provinciaActual) return 'actual';
-    return 'disponible';
+    if (!this.provinciasDesbloq.includes(id)) return 'locked';
+    if (this.provinciasCompletadas.includes(id)) return 'completada';
+    return 'disponible'; 
   }
 
   update() {}
