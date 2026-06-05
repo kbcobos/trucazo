@@ -30,7 +30,8 @@ export class GameBoardScene extends Phaser.Scene {
     this.recompensaAura  = data.recompensaAura   ?? 80;
     this.powerupsActivos = data.powerupsActivos  ?? [];
     this.aura            = data.aura             ?? 0;
-    this.provinciasDesbloq = data.provinciasDesbloq ?? ['tierra_del_fuego'];
+    this.provinciasDesbloq = data.provinciasDesbloq ?? ['tierra_del_fuego', 'la_plata', 'mendoza', 'tucuman'];
+    this.provinciasCompletadas = data.provinciasCompletadas ?? [];
     this.provinciaActual   = data.provinciaActual   ?? 'tierra_del_fuego';
     this.iconoJugador      = data.iconoJugador      ?? 'icono_gaucho';
     this.marcoJugador      = data.marcoJugador      ?? 'marco_basico';
@@ -53,7 +54,7 @@ preload() {
   }
   
   this.load.image('carta_reverso', 'assets/cards/reverso.jpeg');
-  this.load.image('fondo_mesa', 'assets/ui/fondo_mesa.jpeg');
+  this.load.image('fondo_mesa', 'assets/ui/fondo_mesa.png');
   
   this.load.image('marco_gaucho', 'assets/ui/banners/marco_gaucho.png');
   this.load.image('marco_pampa', 'assets/ui/banners/marco_pampa.png');
@@ -66,13 +67,15 @@ preload() {
   this.load.image('icono_gaucho_rojo', 'assets/ui/banners/icono_gaucho_rojo.png');
   this.load.image('icono_gaucho_negro', 'assets/ui/banners/icono_gaucho_negro.png');
 
-  this.load.image('jefe_tierra_del_fuego', 'assets/ui/jefes/Mariano_Torre.png');
-  this.load.image('jefe_santa_cruz',       'assets/ui/jefes/Nestor_Kirchner.png');
-  this.load.image('jefe_buenos_aires',     'assets/ui/jefes/Ricardo_Fort.png');
-  this.load.image('jefe_santa_fe',         'assets/ui/jefes/Lionel_Messi.png');
-  this.load.image('jefe_cordoba',          'assets/ui/jefes/Rodrigo_Bueno.png');
-  this.load.image('jefe_san_juan',         'assets/ui/jefes/Chiqui_Tapia.png');
-  this.load.image('jefe_salta',            'assets/ui/jefes/Chaqueño_Palavecino.png');
+  this.load.image('jefe_tierra_del_fuego',  'assets/ui/jefes/Mariano_Torre.png');
+  this.load.image('jefe_la_plata',          'assets/ui/jefes/Rene_Favaloro.png');
+  this.load.image('jefe_buenos_aires',      'assets/ui/jefes/Ricardo_Fort.png');
+  this.load.image('jefe_santa_fe',          'assets/ui/jefes/Lionel_Messi.png');
+  this.load.image('jefe_cordoba',           'assets/ui/jefes/Rodrigo_Bueno.png');
+  this.load.image('jefe_mendoza',           'assets/ui/jefes/Quino.png');
+  this.load.image('jefe_tucuman',           'assets/ui/jefes/Gladys.png');
+  this.load.image('jefe_salta',             'assets/ui/jefes/Chaqueño_Palavecino.png');
+  this.load.image('jefe_jujuy',             'assets/ui/jefes/Locomotora.png');
 
   this.load.image('mazo_boca_abajo', 'assets/ui/mazo_boca_abajo.png');
 
@@ -266,6 +269,7 @@ _dibujarPowerupsActivos() {
       powerupsActivos:   this.powerupsActivos,
       aura:              this.aura,
       provinciasDesbloq: this.provinciasDesbloq,
+      provinciasCompletadas: this.provinciasCompletadas,
       provinciaActual:   this.provinciaActual,
       iconoJugador:      this.iconoJugador,
       marcoJugador:      this.marcoJugador
@@ -813,9 +817,16 @@ _dibujarPowerupsActivos() {
     if (esJugador) {
       this._onAuraGanada(this.recompensaAura);
 
-      const ORDEN = ['tierra_del_fuego', 'santa_cruz', 'buenos_aires', 'santa_fe', 'cordoba', 'san_juan', 'salta'];
-      const indexActual = ORDEN.indexOf(this.provinciaId);
-      const siguienteProvincia = ORDEN[indexActual + 1] || this.provinciaId;
+      if (!this.provinciasCompletadas.includes(this.provinciaId)) {
+        this.provinciasCompletadas.push(this.provinciaId);
+      }
+
+      let nuevasDesbloqueadas = [...this.provinciasDesbloq];
+      const victorias = this.provinciasCompletadas.length;
+      
+      if (victorias >= 1 && !nuevasDesbloqueadas.includes('buenos_aires')) nuevasDesbloqueadas.push('buenos_aires');
+      if (victorias >= 2 && !nuevasDesbloqueadas.includes('santa_fe')) nuevasDesbloqueadas.push('santa_fe', 'cordoba');
+      if (victorias >= 3 && !nuevasDesbloqueadas.includes('salta')) nuevasDesbloqueadas.push('salta', 'jujuy');
 
       this.time.delayedCall(4000, () => {
         this.scene.start('AuraShop', {
@@ -823,8 +834,9 @@ _dibujarPowerupsActivos() {
           recompensaAura: 0,
           provinciaId: this.provinciaId,
           powerupsActivos: this.powerupsActivos,
-          provinciasDesbloq: [...this.provinciasDesbloq, siguienteProvincia],
-          provinciaActual: siguienteProvincia
+          provinciasDesbloq: nuevasDesbloqueadas,
+          provinciasCompletadas: this.provinciasCompletadas,
+          provinciaActual: this.provinciaId
         });
       });
     } else {
@@ -964,6 +976,7 @@ _dibujarPowerupsActivos() {
           powerupsActivos:   this.powerupsActivos,
           aura:              this.aura,
           provinciasDesbloq: this.provinciasDesbloq,
+          provinciasCompletadas: this.provinciasCompletadas,
           provinciaActual:   this.provinciaActual,
           iconoJugador:      this.iconoJugador,
           marcoJugador:      this.marcoJugador
