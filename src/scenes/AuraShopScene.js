@@ -10,7 +10,8 @@ export class AuraShopScene extends Phaser.Scene {
   constructor() { super('AuraShop'); }
 
   init(data) {
-    this.provinciasDesbloq = data.provinciasDesbloq ?? ['tierra_del_fuego'];
+    this.provinciasDesbloq = data.provinciasDesbloq ?? ['tierra_del_fuego', 'la_plata', 'mendoza', 'tucuman'];
+    this.provinciasCompletadas = data.provinciasCompletadas ?? [];
     this.provinciaActual   = data.provinciaActual   ?? 'tierra_del_fuego';
     this.auraDisponible    = (data.aura ?? 0) + (data.recompensaAura ?? 0);
     this.auraDisponible  = (data.aura ?? 0) + (data.recompensaAura ?? 0);
@@ -118,7 +119,7 @@ export class AuraShopScene extends Phaser.Scene {
 
   _dibujarVendedor(cx, cy) {
     if (this.textures.exists('cantinero')) {
-      this.add.image(cx, cy - 30, 'cantinero').setDisplaySize(160, 160);
+      this.add.image(cx, cy - 15, 'cantinero').setDisplaySize(260, 260);
     } else {
       this.add.text(cx, cy, '[CANTINERO.PNG]', { color: '#ff0000' }).setOrigin(0.5);
     }
@@ -349,6 +350,7 @@ export class AuraShopScene extends Phaser.Scene {
         powerupsActivos:   this.powerupsActivos,
         aura:              this.auraDisponible,
         provinciasDesbloq: this.provinciasDesbloq,
+        provinciasCompletadas: this.provinciasCompletadas,
         provinciaActual:   this.provinciaActual,
         iconoJugador:      this.iconoJugador,
         marcoJugador:      this.marcoJugador
