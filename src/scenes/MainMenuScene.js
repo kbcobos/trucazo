@@ -260,8 +260,14 @@ Repository & Deployment maintained by Katherine Cobos`;
   _salir() {
     this.cameras.main.fadeOut(400, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
-      window.close();
-      window.location.href = "about:blank";
+      try { window.close(); } catch (e) {}
+      this.add.rectangle(0, 0, 960, 540, 0x0a0502).setOrigin(0).setDepth(999);
+      this.add.text(480, 270, '¡GRACIAS POR JUGAR A TRUCAZO!\n\nYa podés cerrar esta pestaña.', {
+        fontSize: '24px', color: '#EF9F27', align: 'center', 
+        fontFamily: "'Chakra Petch', monospace", lineSpacing: 10
+      }).setOrigin(0.5).setDepth(1000);
+      
+      this.cameras.main.fadeIn(400, 0, 0, 0);
     });
   }
 
@@ -270,7 +276,8 @@ Repository & Deployment maintained by Katherine Cobos`;
     this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.start('CampaignMap', {
         powerupsActivos: [], aura: 0,
-        provinciasDesbloq: ['tierra_del_fuego'],
+        provinciasDesbloq: ['tierra_del_fuego', 'la_plata', 'mendoza', 'tucuman'],
+        provinciasCompletadas: [],
         provinciaActual: 'tierra_del_fuego',
         iconoJugador: this.iconoJugador,
         marcoJugador: this.marcoJugador
