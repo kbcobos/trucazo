@@ -10,7 +10,7 @@ export class AuraShopScene extends Phaser.Scene {
   constructor() { super('AuraShop'); }
 
   init(data) {
-    this.provinciasDesbloq = data.provinciasDesbloq ?? ['tierra_del_fuego', 'la_plata', 'mendoza', 'tucuman'];
+    this.provinciasDesbloq = data.provinciasDesbloq ?? ['tierra_del_fuego', 'la_plata', 'san_juan', 'tucuman'];
     this.provinciasCompletadas = data.provinciasCompletadas ?? [];
     this.provinciaActual   = data.provinciaActual   ?? 'tierra_del_fuego';
     this.auraDisponible    = (data.aura ?? 0) + (data.recompensaAura ?? 0);
@@ -19,6 +19,7 @@ export class AuraShopScene extends Phaser.Scene {
     this.powerupsActivos = data.powerupsActivos ?? [];
     this.iconoJugador      = data.iconoJugador      ?? 'icono_gaucho';
     this.marcoJugador      = data.marcoJugador      ?? 'marco_basico';
+    this.nombreJugador = data.nombreJugador ?? 'JUGADOR'
     this.descuento       = this.powerupsActivos.includes('descuento_gaucho') ? 20 : 0;
     this.slotsExtra      = this.powerupsActivos.includes('pulperia_express') ? 1  : 0;
     this._transicionando   = false;
