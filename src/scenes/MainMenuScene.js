@@ -16,6 +16,7 @@ export class MainMenuScene extends Phaser.Scene {
 
     this.iconoJugador      = d.iconoJugador      ?? 'icono_gaucho';
     this.marcoJugador      = d.marcoJugador      ?? 'marco_basico';
+    this.nombreJugador     = d.nombreJugador     ?? 'JUGADOR';
   }
 
   preload() {
@@ -26,8 +27,8 @@ export class MainMenuScene extends Phaser.Scene {
     this._crearFondo();
     this._crearLadoIzquierdo();
     this._crearLadoDerecho();
-    this.add.text(W - 12, H - 12, 'v0.1.0 — LOS QUE FACTURAN · 2026', {
-      fontSize: '9px', color: '#d1d1d1',
+    this.add.text(W - 12, H - 12, 'v1.0.0 — LOS QUE FACTURAN · 2026', {
+      fontSize: '11px', color: '#d1d1d1',
       fontFamily: "'Chakra Petch', monospace", letterSpacing: 2
     }).setOrigin(1, 1);
     this.cameras.main.fadeIn(500, 0, 0, 0);
@@ -153,22 +154,22 @@ export class MainMenuScene extends Phaser.Scene {
       fontSize: '24px', color: '#EF9F27', fontStyle: 'bold', fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
-    const instructions = `El Truco es un juego de engaño y estrategia.
-El objetivo es ganar 15 o 30 puntos antes que tu rival.
+    const instructions = `OBJETIVO:
+Llegar a la meta de puntos antes que tu rival ganando bazas y apostando.
 
-JERARQUÍA DE CARTAS (de mayor a menor):
+JERARQUÍA DE CARTAS (De mayor a menor):
 1 Espada > 1 Basto > 7 Espada > 7 Oro > Todos los 3 > Todos los 2 
 > 1 Copa/Oro > Todos los 12 > Todos los 11 > Todos los 10 > Otros 7 > 6 > 5 > 4
 
 EL ENVIDO:
-Se canta en la primera baza antes del truco. Suma el valor de 2 cartas del mismo palo + 20. 
-(Ej: 7 y 6 de copas = 33). Las figuras (10, 11, 12) valen 0 para el envido.
-Si tenés cartas de distinto palo, tu envido es el valor de tu carta más alta.
+Se disputa antes del truco. Sumá el valor de 2 cartas del mismo palo + 20. 
+(Ej: 7 y 6 de copas = 33). Las figuras (10, 11, 12) valen 0.
+Si tenés cartas de distinto palo, tu envido es tu carta de mayor valor.
 
 EL TRUCO:
-Se compite por la mano al mejor de 3 bazas. 
-El ganador del Truco suma 2 puntos. Podés desafiar subiendo la apuesta 
-a Retruco (3 puntos) y luego a Vale Cuatro (4 puntos).`;
+Se compite por la mano al mejor de 3 bazas (gana el que se lleva 2). 
+El Truco simple vale 2 puntos. Podés subir la apuesta a Retruco (3 pts) 
+o Vale Cuatro (4 pts) si confías en tus cartas, ¡o si sabés mentir bien!`;
 
     const text = this.add.text(cx, cy - 10, instructions, {
       fontSize: '14px', color: '#e8c88a', fontFamily: "'Chakra Petch', monospace",
@@ -199,7 +200,7 @@ a Retruco (3 puntos) y luego a Vale Cuatro (4 puntos).`;
     const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.85).setOrigin(0).setInteractive();
     const panel = this.add.rectangle(cx, cy, 700, 490, 0x1a0e06).setStrokeStyle(2, 0xef9f27);
 
-    const title = this.add.text(cx, cy - 215, 'TRUCAZO — CRÉDITOS', {
+    const title = this.add.text(cx, cy - 215, 'CRÉDITOS', {
       fontSize: '24px', color: '#EF9F27', fontStyle: 'bold', fontFamily: "'Chakra Petch', monospace", letterSpacing: 2
     }).setOrigin(0.5);
 
@@ -252,7 +253,8 @@ Repository & Deployment maintained by Katherine Cobos`;
         provinciasDesbloq: this.provinciasDesbloq,
         provinciaActual:   this.provinciaActual,
         iconoJugador:      this.iconoJugador,
-        marcoJugador:      this.marcoJugador
+        marcoJugador:      this.marcoJugador,
+        nombreJugador:     this.nombreJugador
       });
     });
   }
@@ -272,15 +274,29 @@ Repository & Deployment maintained by Katherine Cobos`;
   }
 
   _nuevaPartida() {
-    this.cameras.main.fadeOut(400, 0, 0, 0);
-    this.cameras.main.once('camerafadeoutcomplete', () => {
-      this.scene.start('CampaignMap', {
-        powerupsActivos: [], aura: 0,
-        provinciasDesbloq: ['tierra_del_fuego', 'la_plata', 'mendoza', 'tucuman'],
-        provinciasCompletadas: [],
-        provinciaActual: 'tierra_del_fuego',
-        iconoJugador: this.iconoJugador,
-        marcoJugador: this.marcoJugador
+    this.time.delayedCall(100, () => {
+      let nombreIngresado = "Jugador";
+
+      try {
+        const input = window.prompt("¡Bienvenido! ¿Cuál es tu nombre para esta partida?", "Jugador");
+        if (input && input.trim() !== '') {
+          nombreIngresado = input.trim().substring(0, 12);
+        }
+      } catch (e) {
+        console.warn("El navegador bloqueó la ventana emergente, usando nombre por defecto.");
+      }
+
+      this.cameras.main.fadeOut(400, 0, 0, 0);
+      this.cameras.main.once('camerafadeoutcomplete', () => {
+        this.scene.start('CampaignMap', {
+          powerupsActivos: [], aura: 0,
+          provinciasDesbloq: ['tierra_del_fuego', 'la_plata', 'san_juan', 'tucuman'],
+          provinciasCompletadas: [],
+          provinciaActual: 'tierra_del_fuego',
+          iconoJugador: this.iconoJugador,
+          marcoJugador: this.marcoJugador,
+          nombreJugador: nombreIngresado
+        });
       });
     });
   }
