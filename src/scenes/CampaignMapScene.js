@@ -4,95 +4,44 @@ const W = 960;
 const H = 540;
 
 const PROVINCIAS = [
-  { 
-    id:'tierra_del_fuego', nombre:'Tierra del Fuego', sub:'',
-    x:320, y:490, jefe:'Mariano Torre', apodo:'El Casi Ángel',
-    desc:'Actor de Casi Ángeles reconvertido en jugador. Principiante con cara de protagonista.',
-    dif:1, aura:80, pts:10, estado:'actual' 
-  },
-  { 
-    id:'la_plata', nombre:'La Plata', sub:'',
-    x:434, y:240, jefe:'René Favaloro', apodo:'El Médico',
-    desc:'Conocido por su compromiso con la salud pública.',
-    dif:3, aura:120, pts:12, estado:'locked' 
-  },
-  { 
-    id:'buenos_aires', nombre:'Buenos Aires', sub:'',
-    x:420, y:220, jefe:'Ricardo Fort', apodo:'El Rey del Chocolate',
-    desc:'Millonario y extravagante. Canta truco con champagne en mano.',
-    dif:3, aura:160, pts:15, estado:'locked' 
-  },
-  { 
-    id:'santa_fe', nombre:'Santa Fe', sub:'',
-    x:390, y:200, jefe:'Lionel Messi', apodo:'La Pulga',
-    desc:'No habla. No farolea. No necesita. Precisión quirúrgica.',
-    dif:4, aura:200, pts:15, estado:'locked' 
-  },
-  { 
-    id:'cordoba', nombre:'Córdoba', sub:'',
-    x:350, y:180, jefe:'Rodrigo Bueno', apodo:'El Potro',
-    desc:'La cumbia en el alma y el truco en la sangre. Impredecible.',
-    dif:4, aura:260, pts:18, estado:'locked' 
-  },
-  { 
-    id:'mendoza', nombre:'Mendoza', sub:'',
-    x:280, y:240, jefe:'Joaquin Salvador', apodo:'Quino',
-    desc:'Humoristica gráfico. Creador de Mafalda.',
-    dif:5, aura:340, pts:20, estado:'locked' 
-  },
-  { 
-    id:'tucuman', nombre:'Tucumán', sub:'',
-    x:322, y:130, jefe:'Gladys', apodo:'La Bomba Tucumana',
-    desc:'Reina de la movida tropical. Canta "La pollera amarilla" antes de cada mano.',
-    dif:2, aura:340, pts:25, estado:'locked' 
-  },
-  { 
-    id:'salta', nombre:'Salta', sub:'',
-    x:350, y:100, jefe:'El Chaqueño Palavecino', apodo:'El Cantor del Norte',
-    desc:'Ícono del folklore argentino. Canta "La ley y la trampa" para intimidar a sus rivales.',
-    dif:7, aura:500, pts:30, estado:'locked' 
-  },
-  { 
-    id:'jujuy', nombre:'Jujuy', sub:'',
-    x:320, y:75, jefe:'Alejandra Olivera', apodo:'La Locomotora',
-    desc:'La campeona indiscutida del truco. Nadie sabe cómo juega, pero siempre gana.',
-    dif:7, aura:500, pts:35, estado:'locked' 
-  },
+  { id:'tierra_del_fuego', nombre:'Tierra del Fuego', sub:'', x:320, y:490, jefe:'Mariano Torre', apodo:'El Casi Ángel', desc:'Actor de Casi Ángeles reconvertido en jugador. Principiante con cara de protagonista.', dif:1, aura:80, pts:10, estado:'actual' },
+  { id: 'san_juan', nombre: 'San Juan', sub: '', x: 280, y: 180, jefe: 'Dario Barassi', apodo: 'El Comediante', desc: 'Carismático y rápido de mente. Siempre tiene un chiste listo, incluso en las manos más tensas.', dif: 2, aura: 100, pts: 12, estado: 'locked' },
+  { id:'la_plata', nombre:'La Plata', sub:'', x:434, y:240, jefe:'René Favaloro', apodo:'El Médico', desc:'Conocido por su compromiso con la salud pública.', dif:2, aura:120, pts:12, estado:'locked' },
+  { id:'buenos_aires', nombre:'Buenos Aires', sub:'', x:420, y:220, jefe:'Ricardo Fort', apodo:'El Rey del Chocolate', desc:'Millonario y extravagante. Canta truco con champagne en mano.', dif:3, aura:160, pts:15, estado:'locked' },
+  { id:'tucuman', nombre:'Tucumán', sub:'', x:322, y:130, jefe:'Gladys', apodo:'La Bomba Tucumana', desc:'Reina de la movida tropical. Canta "La pollera amarilla" antes de cada mano.', dif:3, aura:340, pts:25, estado:'locked' },
+  { id:'cordoba', nombre:'Córdoba', sub:'', x:350, y:180, jefe:'Rodrigo Bueno', apodo:'El Potro', desc:'La cumbia en el alma y el truco en la sangre. Impredecible.', dif:4, aura:260, pts:18, estado:'locked' },
+  { id:'mendoza', nombre:'Mendoza', sub:'', x:280, y:240, jefe:'Joaquin Salvador', apodo:'Quino', desc:'Humorista gráfico. Creador de Mafalda.', dif:4, aura:340, pts:20, estado:'locked' },
+  { id:'santa_fe', nombre:'Santa Fe', sub:'', x:390, y:200, jefe:'Lionel Messi', apodo:'La Pulga', desc:'No habla. No farolea. No necesita. Precisión quirúrgica.', dif:5, aura:200, pts:15, estado:'locked' },
+  { id:'salta', nombre:'Salta', sub:'', x:350, y:100, jefe:'El Chaqueño Palavecino', apodo:'El Cantor del Norte', desc:'Ícono del folklore argentino. Canta "La ley y la trampa" para intimidar a sus rivales.', dif:5, aura:500, pts:30, estado:'locked' },
+  { id:'jujuy', nombre:'Jujuy', sub:'', x:320, y:75, jefe:'Alejandra Olivera', apodo:'La Locomotora', desc:'La campeona indiscutida del truco. Nadie sabe cómo juega, pero siempre gana.', dif:5, aura:500, pts:35, estado:'locked' },
 ];
 
-const ORDEN = ['tierra_del_fuego','la_plata','buenos_aires','santa_fe','cordoba','mendoza','tucuman','salta','jujuy'];
+const ORDEN = ['tierra_del_fuego','la_plata','buenos_aires','santa_fe','cordoba','mendoza', 'san_juan','tucuman','salta','jujuy'];
 const ESTADO_COLOR = { completada:0x34a853, actual:0xef9f27, disponible:0x4285f4, locked:0x555555 };
 
-const ESTADO_MARKER = {
-  completada: 'marker_check',
-  actual:     'marker_gaucho',
-  disponible: 'marker_available',
-  locked:     'marker_lock'
-};
+const ESTADO_MARKER = { completada: 'marker_check', actual: 'marker_gaucho', disponible: 'marker_available', locked: 'marker_lock' };
 
 export class CampaignMapScene extends Phaser.Scene {
   constructor() { super('CampaignMap'); }
 
   init(data) {
     const d = data || {}; 
-    
     this.powerupsActivos   = d.powerupsActivos   ?? [];
     this.aura              = d.aura              ?? 0;
-    this.provinciasDesbloq = d.provinciasDesbloq ?? ['tierra_del_fuego', 'la_plata', 'mendoza', 'tucuman'];
+    this.provinciasDesbloq = d.provinciasDesbloq ?? ['tierra_del_fuego', 'la_plata', 'san_juan', 'tucuman'];
     this.provinciasCompletadas = d.provinciasCompletadas ?? [];
     this.provinciaActual   = d.provinciaActual   ?? 'tierra_del_fuego';    
     this.iconoJugador      = d.iconoJugador      ?? 'icono_gaucho';
     this.marcoJugador      = d.marcoJugador      ?? 'marco_basico';
+    this.nombreJugador     = d.nombreJugador     ?? 'JUGADOR';
   }
   
   preload() {
     this.load.image('mapa_arg', 'assets/ui/mapa_argentina.png');
-
     this.load.image('marker_gaucho',    'assets/ui/map/marker_gaucho.png');
     this.load.image('marker_check',     'assets/ui/map/marker_check.png');
     this.load.image('marker_available', 'assets/ui/map/marker_available.png');
     this.load.image('marker_lock',      'assets/ui/map/marker_lock.png');
-
     this.load.image('icono_aura', 'assets/ui/icono_aura.png');
   }
 
@@ -118,7 +67,8 @@ export class CampaignMapScene extends Phaser.Scene {
       provinciasCompletadas: this.provinciasCompletadas,
       provinciaActual:   this.provinciaActual,
       iconoJugador:      this.iconoJugador,
-      marcoJugador:      this.marcoJugador
+      marcoJugador:      this.marcoJugador,
+      nombreJugador:     this.nombreJugador
     };
     try {
       localStorage.setItem('trucazo_save', JSON.stringify(saveData));
@@ -130,13 +80,9 @@ export class CampaignMapScene extends Phaser.Scene {
   _crearFondo() {
     if (this.textures.exists('mapa_arg')) {
       this.add.rectangle(0, 0, W, H, 0x0d1a2a).setOrigin(0);
-      
       this.add.rectangle(0, 0, 170, H, 0x0a0604, 0.97).setOrigin(0);
       this.add.rectangle(170, 0, 1, H, 0xc09060, 0.25).setOrigin(0);
-      
-      this.add.image(170, 0, 'mapa_arg')
-        .setOrigin(0, 0)
-        .setDisplaySize(380, H);
+      this.add.image(170, 0, 'mapa_arg').setOrigin(0, 0).setDisplaySize(380, H);
     } else {
       const g = this.add.graphics();
       g.fillStyle(0x0d1a2a, 1);
@@ -170,7 +116,7 @@ export class CampaignMapScene extends Phaser.Scene {
   }
 
   _crearHUD() {
-    this.add.rectangle(170, 0, 520, 36, 0x000000, 0.55).setOrigin(0);
+    this.add.rectangle(170, 0, 380, 36, 0x000000, 0.55).setOrigin(0);
     
     if (this.textures.exists('icono_aura')) {
       this.add.image(190, 17, 'icono_aura').setDisplaySize(18, 18);
@@ -185,37 +131,6 @@ export class CampaignMapScene extends Phaser.Scene {
       fontSize: '12px', color: '#ff9123', fontStyle: 'bold',
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(1, 0.5);
-  }
-
-  _dibujarRuta() {
-    const g = this.add.graphics();
-
-    g.lineStyle(3, 0x000000, 0.5); 
-    for (let i = 0; i < PROVINCIAS.length - 1; i++) {
-      this._lineaPunteada(g, PROVINCIAS[i].x, PROVINCIAS[i].y + 2, PROVINCIAS[i+1].x, PROVINCIAS[i+1].y + 2, 8, 5);
-    }
-
-    g.lineStyle(2, 0x5c2c06, 1); 
-    for (let i = 0; i < PROVINCIAS.length - 1; i++) {
-      this._lineaPunteada(g, PROVINCIAS[i].x, PROVINCIAS[i].y, PROVINCIAS[i+1].x, PROVINCIAS[i+1].y, 8, 5);
-    }
-  }
-
-  _lineaPunteada(g, x1, y1, x2, y2, largo, espacio) {
-    const dx = x2-x1, dy = y2-y1;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-    const nx = dx/dist, ny = dy/dist;
-    let d = 0, draw = true;
-    while (d < dist) {
-      const seg = Math.min(draw ? largo : espacio, dist - d);
-      if (draw) {
-        g.beginPath();
-        g.moveTo(x1+nx*d, y1+ny*d);
-        g.lineTo(x1+nx*(d+seg), y1+ny*(d+seg));
-        g.strokePath();
-      }
-      d += seg; draw = !draw;
-    }
   }
 
   _dibujarProvincias() {
@@ -237,8 +152,7 @@ export class CampaignMapScene extends Phaser.Scene {
       let markerObj;
 
       if (hayImagen) {
-        markerObj = this.add.image(prov.x, prov.y, markerKey)
-          .setDisplaySize(40, 40);
+        markerObj = this.add.image(prov.x, prov.y, markerKey).setDisplaySize(40, 40);
       } else {
         const g = this.add.graphics();
         g.fillStyle(estado === 'locked' ? 0x333333 : ESTADO_COLOR[estado], 1);
@@ -271,30 +185,18 @@ export class CampaignMapScene extends Phaser.Scene {
       }
       
       if (estado !== 'locked') {
-        const hit = this.add.circle(prov.x, prov.y, 24, 0xffffff, 0)
-          .setInteractive({ useHandCursor: true });
-
+        const hit = this.add.circle(prov.x, prov.y, 24, 0xffffff, 0).setInteractive({ useHandCursor: true });
         hit.on('pointerdown', () => this._seleccionarProvincia(prov));
 
         const baseScaleX = markerObj.scaleX;
         const baseScaleY = markerObj.scaleY;
 
         hit.on('pointerover', () => {
-          this.tweens.add({ 
-            targets: markerObj, 
-            scaleX: baseScaleX * 2.0, 
-            scaleY: baseScaleY * 2.0, 
-            duration: 120 
-          });
+          this.tweens.add({ targets: markerObj, scaleX: baseScaleX * 2.0, scaleY: baseScaleY * 2.0, duration: 120 });
         });
         
         hit.on('pointerout', () => {
-          this.tweens.add({ 
-            targets: markerObj, 
-            scaleX: baseScaleX, 
-            scaleY: baseScaleY, 
-            duration: 120 
-          });
+          this.tweens.add({ targets: markerObj, scaleX: baseScaleX, scaleY: baseScaleY, duration: 120 });
         });
       }
     }
@@ -305,38 +207,28 @@ export class CampaignMapScene extends Phaser.Scene {
     btnBg.setStrokeStyle(1, 0x555555).setInteractive({ useHandCursor: true });
     
     const btnLbl = this.add.text(85, H - 30, '← MENÚ', {
-      fontSize: '12px', color: '#888888', fontStyle: 'bold',
-      fontFamily: "'Chakra Petch', monospace"
+      fontSize: '12px', color: '#888888', fontStyle: 'bold', fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
     btnBg.on('pointerover', () => {
-      btnBg.setFillStyle(0x2a1608);
-      btnBg.setStrokeStyle(1, 0xEF9F27);
-      btnLbl.setColor('#EF9F27');
+      btnBg.setFillStyle(0x2a1608); btnBg.setStrokeStyle(1, 0xEF9F27); btnLbl.setColor('#EF9F27');
     });
-    
     btnBg.on('pointerout', () => {
-      btnBg.setFillStyle(0x1a0e06);
-      btnBg.setStrokeStyle(1, 0x555555);
-      btnLbl.setColor('#888888');
+      btnBg.setFillStyle(0x1a0e06); btnBg.setStrokeStyle(1, 0x555555); btnLbl.setColor('#888888');
     });
-
     btnBg.on('pointerdown', () => {
       this.cameras.main.fadeOut(400, 0, 0, 0);
       this.cameras.main.once('camerafadeoutcomplete', () => {
         this.scene.start('MainMenu', {
-          powerupsActivos:   this.powerupsActivos,
-          aura:              this.aura,
-          provinciasDesbloq: this.provinciasDesbloq,
-          provinciaActual:   this.provinciaActual,
-          iconoJugador:      this.iconoJugador,
-          marcoJugador:      this.marcoJugador
+          powerupsActivos: this.powerupsActivos, aura: this.aura,
+          provinciasDesbloq: this.provinciasDesbloq, provinciaActual: this.provinciaActual,
+          iconoJugador: this.iconoJugador, marcoJugador: this.marcoJugador, nombreJugador: this.nombreJugador
         }); 
       });
     });
   }
 
-_crearBotonTienda() {
+  _crearBotonTienda() {
     const btnBg = this.add.rectangle(85, H - 75, 120, 36, 0x2a1608).setOrigin(0.5);
     btnBg.setStrokeStyle(1.5, 0xEF9F27).setInteractive({ useHandCursor: true });
     
@@ -345,40 +237,25 @@ _crearBotonTienda() {
       fontFamily: "'Chakra Petch', monospace", letterSpacing: 1
     }).setOrigin(0.5);
 
-    btnBg.on('pointerover', () => {
-      btnBg.setFillStyle(0x4a2010);
-      btnBg.setScale(1.02);
-      btnLbl.setScale(1.02);
-    });
-    
-    btnBg.on('pointerout', () => {
-      btnBg.setFillStyle(0x2a1608);
-      btnBg.setScale(1);
-      btnLbl.setScale(1);
-    });
+    btnBg.on('pointerover', () => { btnBg.setFillStyle(0x4a2010); btnBg.setScale(1.02); btnLbl.setScale(1.02); });
+    btnBg.on('pointerout', () => { btnBg.setFillStyle(0x2a1608); btnBg.setScale(1); btnLbl.setScale(1); });
 
     btnBg.on('pointerdown', () => {
       this.cameras.main.fadeOut(300, 0, 0, 0);
       this.cameras.main.once('camerafadeoutcomplete', () => {
         this.scene.start('AuraShop', {
-          powerupsActivos:   this.powerupsActivos,
-          aura:              this.aura,
-          recompensaAura:    0, 
-          provinciasDesbloq: this.provinciasDesbloq,
-          provinciasCompletadas: this.provinciasCompletadas,
-          provinciaActual:   this.provinciaActual,
-          iconoJugador:      this.iconoJugador,
-          marcoJugador:      this.marcoJugador
+          powerupsActivos: this.powerupsActivos, aura: this.aura, recompensaAura: 0, 
+          provinciasDesbloq: this.provinciasDesbloq, provinciasCompletadas: this.provinciasCompletadas,
+          provinciaActual: this.provinciaActual, iconoJugador: this.iconoJugador,
+          marcoJugador: this.marcoJugador, nombreJugador: this.nombreJugador
         }); 
       });
     });
   }
 
   _crearPanelInfoVacio() {
-    this._infoHint = this.add.text(755, H / 2,
-      'Tocá una provincia\npara ver el jefe.', {
-      fontSize: '14px', color: '#7a5030', align: 'center',
-      fontFamily: "'Chakra Petch', monospace", lineSpacing: 6
+    this._infoHint = this.add.text(755, H / 2, 'Tocá una provincia\npara ver el jefe.', {
+      fontSize: '14px', color: '#7a5030', align: 'center', fontFamily: "'Chakra Petch', monospace", lineSpacing: 6
     }).setOrigin(0.5);
   }
 
@@ -390,53 +267,40 @@ _crearBotonTienda() {
     this._provSeleccionada = prov;
     const estado = this._estadoProvincia(prov.id);
     
-    const cx     = 755;
-    const px     = 565;
-    const pw     = 380;
-
+    const cx = 755; const px = 565; const pw = 380;
     const mk = (obj) => { this._panelInfo.push(obj); return obj; };
 
     mk(this.add.text(cx, 40, prov.jefe, {
-      fontSize: '18px', color: '#e8c88a', fontStyle: 'bold',
-      fontFamily: "'Chakra Petch', monospace",
+      fontSize: '18px', color: '#e8c88a', fontStyle: 'bold', fontFamily: "'Chakra Petch', monospace",
       wordWrap: { width: pw - 20 }, align: 'center'
     }).setOrigin(0.5));
 
     mk(this.add.text(cx, 64, `"${prov.apodo}"`, {
-      fontSize: '14px', color: '#EF9F27',
-      fontFamily: "'Chakra Petch', monospace"
+      fontSize: '14px', color: '#EF9F27', fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5));
 
     mk(this.add.rectangle(cx, 82, pw - 20, 1, 0xc09060, 0.25).setOrigin(0.5));
 
     mk(this.add.text(cx, 98, prov.nombre.toUpperCase(), {
-      fontSize: '14px', color: '#c09060', letterSpacing: 3,
-      fontFamily: "'Chakra Petch', monospace"
+      fontSize: '14px', color: '#c09060', letterSpacing: 3, fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5));
 
     mk(this.add.text(cx, 126, prov.desc, {
-      fontSize: '14px', color: '#a08060', align: 'center',
-      fontFamily: "'Chakra Petch', monospace",
+      fontSize: '14px', color: '#a08060', align: 'center', fontFamily: "'Chakra Petch', monospace",
       wordWrap: { width: pw - 24 }
     }).setOrigin(0.5, 0));
 
     mk(this.add.rectangle(cx, 225, pw - 20, 1, 0xc09060, 0.25).setOrigin(0.5));
 
     const rows = [
-      ['Dificultad', '★'.repeat(prov.dif) + '☆'.repeat(7 - prov.dif), '#EF9F27'],
+      ['Dificultad', '★'.repeat(prov.dif) + '☆'.repeat(5 - prov.dif), '#EF9F27'],
       ['Recompensa', `${prov.aura} Aura`, '#e8c88a'],
       ['Meta',       `${prov.pts} puntos`, '#e8c88a'],
     ];
     rows.forEach(([label, val, col], i) => {
       const y = 244 + i * 28;
-      mk(this.add.text(px + 14, y, label, {
-        fontSize: '14px', color: '#7a5030',
-        fontFamily: "'Chakra Petch', monospace"
-      }));
-      mk(this.add.text(W - 14, y, val, {
-        fontSize: '14px', color: col,
-        fontFamily: "'Chakra Petch', monospace"
-      }).setOrigin(1, 0));
+      mk(this.add.text(px + 14, y, label, { fontSize: '14px', color: '#7a5030', fontFamily: "'Chakra Petch', monospace" }));
+      mk(this.add.text(W - 14, y, val, { fontSize: '14px', color: col, fontFamily: "'Chakra Petch', monospace" }).setOrigin(1, 0));
     });
 
     mk(this.add.rectangle(cx, 332, pw - 20, 1, 0xc09060, 0.25).setOrigin(0.5));
@@ -445,8 +309,7 @@ _crearBotonTienda() {
     const btnBg  = mk(this.add.rectangle(cx, 382, pw - 24, 52, 0x2a1608).setOrigin(0.5));
     btnBg.setStrokeStyle(1.5, 0xEF9F27).setInteractive({ useHandCursor: true });
     mk(this.add.text(cx, 382, btnTxt, {
-      fontSize: '15px', color: '#EF9F27', fontStyle: 'bold',
-      fontFamily: "'Chakra Petch', monospace"
+      fontSize: '15px', color: '#EF9F27', fontStyle: 'bold', fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5));
 
     btnBg.on('pointerover',  () => btnBg.setFillStyle(0x4a2010));
@@ -454,28 +317,15 @@ _crearBotonTienda() {
     btnBg.on('pointerdown',  () => this._iniciarPartida(prov));
 
     mk(this.add.rectangle(cx, 460, pw - 20, 1, 0xc09060, 0.15).setOrigin(0.5));
-    const leyenda = [
-      { col: 0x34a853, txt: 'Completada' },
-      { col: 0xef9f27, txt: 'Actual'     },
-      { col: 0x4285f4, txt: 'Disponible' },
-      { col: 0x555555, txt: 'Bloqueada'  },
-    ];
+    const leyenda = [ { col: 0x34a853, txt: 'Completada' }, { col: 0xef9f27, txt: 'Actual' }, { col: 0x4285f4, txt: 'Disponible' }, { col: 0x555555, txt: 'Bloqueada' } ];
     leyenda.forEach((l, i) => {
       const lx = px + 16 + i * 90;
       const g2 = this.add.graphics();
-      g2.fillStyle(l.col, 1);
-      g2.fillCircle(lx, 478, 5);
-      mk(g2);
-      mk(this.add.text(lx + 9, 478, l.txt, {
-        fontSize: '12px', color: '#af7243',
-        fontFamily: "'Chakra Petch', monospace"
-      }).setOrigin(0, 0.5));
+      g2.fillStyle(l.col, 1); g2.fillCircle(lx, 478, 5); mk(g2);
+      mk(this.add.text(lx + 9, 478, l.txt, { fontSize: '12px', color: '#af7243', fontFamily: "'Chakra Petch', monospace" }).setOrigin(0, 0.5));
     });
 
-    this._panelInfo.forEach(o => {
-      o.setAlpha(0);
-      this.tweens.add({ targets: o, alpha: 1, duration: 200 });
-    });
+    this._panelInfo.forEach(o => { o.setAlpha(0); this.tweens.add({ targets: o, alpha: 1, duration: 200 }); });
   }
 
   _iniciarPartida(prov) {
@@ -485,17 +335,11 @@ _crearBotonTienda() {
     this.cameras.main.fadeOut(400, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.start('GameBoard', {
-        provinciaId:       prov.id,
-        jefeNombre:        prov.jefe,
-        puntosParaGanar:   prov.pts,
-        recompensaAura:    prov.aura,
-        powerupsActivos:   this.powerupsActivos,
-        aura:              this.aura,
-        provinciasDesbloq: this.provinciasDesbloq,
-        provinciasCompletadas: this.provinciasCompletadas,
-        provinciaActual:   this.provinciaActual,
-        iconoJugador:      this.iconoJugador,
-        marcoJugador:      this.marcoJugador
+        provinciaId: prov.id, jefeNombre: prov.jefe, puntosParaGanar: prov.pts, recompensaAura: prov.aura,
+        powerupsActivos: this.powerupsActivos, aura: this.aura,
+        provinciasDesbloq: this.provinciasDesbloq, provinciasCompletadas: this.provinciasCompletadas,
+        provinciaActual: this.provinciaActual, iconoJugador: this.iconoJugador,
+        marcoJugador: this.marcoJugador, nombreJugador: this.nombreJugador
       });
     });
   }
