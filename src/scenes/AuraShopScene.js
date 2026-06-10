@@ -95,7 +95,7 @@ export class AuraShopScene extends Phaser.Scene {
     this.add.rectangle(cx, 88, 180, 1, 0xc09060, 0.25).setOrigin(0.5);
 
     this.add.text(cx, 108, 'AURA DISPONIBLE', {
-      fontSize: '9px', color: '#7a5030', letterSpacing: 2,
+      fontSize: '11px', color: '#7a5030', letterSpacing: 2,
       fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
 
@@ -112,8 +112,8 @@ export class AuraShopScene extends Phaser.Scene {
 
     this._dibujarVendedor(cx, 290);
 
-    this.add.text(cx, 430, 'Elegí un\npotenciador\npara tu\npróxima mano.', {
-      fontSize: '11px', color: '#a08060', align: 'center',
+    this.add.text(cx, 430, 'Elegí un potenciador\npara tu\npróxima mano.', {
+      fontSize: '14px', color: '#a08060', align: 'center',
       fontFamily: "'Chakra Petch', monospace", lineSpacing: 4
     }).setOrigin(0.5);
   }
@@ -183,7 +183,7 @@ export class AuraShopScene extends Phaser.Scene {
     
     if (this._oferta.length === 0) {
       this.add.text(W / 2 + 110, H / 2, '¡Tenés todos los powerups!', {
-        fontSize: '16px', color: '#c09060', fontFamily: "'Chakra Petch', monospace"
+        fontSize: '20px', color: '#c09060', fontFamily: "'Chakra Petch', monospace"
       }).setOrigin(0.5);
       return;
     }
@@ -214,31 +214,31 @@ export class AuraShopScene extends Phaser.Scene {
       container.add(bg);
 
       if (this.textures.exists(p.id)) {
-        const ico = this.add.image(cardW / 2, 42, p.id).setDisplaySize(70, 70);
+        const ico = this.add.image(cardW / 2, 50, p.id).setDisplaySize(80, 80);
         container.add(ico);
       }
       
-      const lblRareza = this.add.text(cardW / 2, 88, p.rareza.toUpperCase(), {
-        fontSize: '9px', color: `#${color.toString(16).padStart(6,'0')}`,
+      const lblRareza = this.add.text(cardW / 2, 100, p.rareza.toUpperCase(), {
+        fontSize: '14px', color: `#${color.toString(16).padStart(6,'0')}`,
         fontFamily: "'Chakra Petch'", fontStyle: 'bold', letterSpacing: 2
       }).setOrigin(0.5);
       
-      const lblNombre = this.add.text(cardW / 2, 106, p.nombre, {
-        fontSize: '12px', color: '#e8c88a', fontStyle: 'bold',
+      const lblNombre = this.add.text(cardW / 2, 112, p.nombre, {
+        fontSize: '16px', color: '#e8c88a', fontStyle: 'bold',
         fontFamily: "'Chakra Petch'", wordWrap: { width: cardW - 24 }, align: 'center'
       }).setOrigin(0.5, 0);
       
-      const sep = this.add.rectangle(cardW / 2, 140, cardW - 30, 1, 0xc09060, 0.2).setOrigin(0.5);
+      const sep = this.add.rectangle(cardW / 2, 140, cardW - 30, 2, 0xc09060, 0.2).setOrigin(0.5);
       
       const lblDesc = this.add.text(cardW / 2, 155, p.desc, {
-        fontSize: '11px', color: '#a08060',
+        fontSize: '14px', color: '#a08060',
         fontFamily: "'Chakra Petch'", wordWrap: { width: cardW - 24 }, align: 'center'
       }).setOrigin(0.5, 0);
       
       const precioColor = puedePagar ? '#EF9F27' : '#555555';
       const precioTxt   = yaComprado ? '✓ COMPRADO' : `${precio} AURA`;
       const lblPrecio   = this.add.text(cardW / 2, cardH - 62, precioTxt, {
-        fontSize: '13px', color: precioColor, fontStyle: 'bold', fontFamily: "'Chakra Petch'"
+        fontSize: '14px', color: precioColor, fontStyle: 'bold', fontFamily: "'Chakra Petch'"
       }).setOrigin(0.5);
       
       container.add([lblRareza, lblNombre, sep, lblDesc, lblPrecio]);
@@ -249,7 +249,7 @@ export class AuraShopScene extends Phaser.Scene {
         btnBg.setStrokeStyle(1, puedePagar ? color : 0x333333);
         
         const lblBtn = this.add.text(cardW / 2, cardH - 28, puedePagar ? 'COMPRAR' : 'SIN AURA', {
-          fontSize: '11px', color: puedePagar ? '#EF9F27' : '#555',
+          fontSize: '14px', color: puedePagar ? '#EF9F27' : '#555',
           fontFamily: "'Chakra Petch'", fontStyle: 'bold'
         }).setOrigin(0.5);
         
@@ -324,10 +324,9 @@ export class AuraShopScene extends Phaser.Scene {
   }
 
   _crearBotonesPie() {
-    const finBg = this.add.rectangle(250, H - 28, 160, 34, 0x1a0e06).setOrigin(0.5);
+    const finBg = this.add.rectangle(320, H - 28, 160, 34, 0x1a0e06).setOrigin(0.5);
     finBg.setStrokeStyle(1, 0x555555).setInteractive({ useHandCursor: true });
-    this.add.text(250, H - 28, 'FIN DEL TURNO', {
-      fontSize: '11px', color: '#888', fontFamily: "'Chakra Petch', monospace"
+    this.add.text(320, H - 28, 'FIN DEL TURNO', {fontSize: '12px', color: '#888', fontFamily: "'Chakra Petch', monospace"
     }).setOrigin(0.5);
     finBg.on('pointerdown', () => this._continuar());
 
