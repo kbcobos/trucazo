@@ -231,7 +231,8 @@ export class GameBoardScene extends Phaser.Scene {
     this._lblPtsJugador = this.add.text(cx, 208, 'Vos: 0', { fontSize: '13px', color: '#EF9F27', fontStyle: 'bold', fontFamily: "'Chakra Petch', monospace" }).setOrigin(0.5);
     this._lblMano = this.add.text(cx, 228, '', { fontSize: '11px', color: '#EF9F27', fontStyle: 'bold', fontFamily: "'Chakra Petch', monospace" }).setOrigin(0.5);
     this.add.rectangle(cx, 244, 175 - 18, 1, 0xc09060, 0.2).setOrigin(0.5);
-    this.add.text(cx, 258, `Meta: ${this.puntosParaGanar} pts`, { fontSize: '12px', color: '#7a5030', fontFamily: "'Chakra Petch', monospace" }).setOrigin(0.5);
+    this.add.rectangle(cx, 258, 140, 24, 0x2a1608).setStrokeStyle(1.5, 0xEF9F27).setOrigin(0.5);
+    this.add.text(cx, 258, `META: ${this.puntosParaGanar} PTS`, { fontSize: '13px', color: '#EF9F27', fontStyle: 'bold', fontFamily: "'Chakra Petch', monospace" }).setOrigin(0.5);
     this.add.text(cx, 280, 'BAZAS', { fontSize: '9px', color: '#7a5030', letterSpacing: 3, fontFamily: "'Chakra Petch', monospace" }).setOrigin(0.5);
 
     this._bazaIndicadores = [];
@@ -484,7 +485,7 @@ export class GameBoardScene extends Phaser.Scene {
     const msgs = { jugador:'Ganaste la baza', rival:'Rival ganó la baza', empate:'= Empate' };
     this._lblEstado.setText(msgs[ganador] ?? '');
     this._actualizarBazas();
-    this.time.delayedCall(1200, () => {
+    this.time.delayedCall(2500, () => {
       this._limpiarMesa();
       this._lblEstado.setText('');
       if (this.logic.estado === EstadoJuego.TURNO_JUGADOR) {
