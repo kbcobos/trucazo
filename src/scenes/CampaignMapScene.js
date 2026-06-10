@@ -56,6 +56,7 @@ export class CampaignMapScene extends Phaser.Scene {
     this._crearBotonVolver();
     if (this._crearBotonTienda) this._crearBotonTienda();
     this._guardarPartida();
+    this._crearLeyenda();
     this.cameras.main.fadeIn(400, 0, 0, 0);
   }
 
@@ -75,6 +76,32 @@ export class CampaignMapScene extends Phaser.Scene {
     } catch (e) {
       console.warn('El autoguardado no está disponible en este momento:', e);
     }
+  }
+
+  _crearLeyenda() {
+    const cx = 85;
+    
+    this.add.text(cx, 80, 'REFERENCIAS', { fontSize: '16px', color: '#EF9F27', fontStyle: 'bold', fontFamily: "'Chakra Petch', monospace", letterSpacing: 2 }).setOrigin(0.5);
+    this.add.rectangle(cx, 95, 132, 1, 0xc09060, 0.4).setOrigin(0.5);
+
+    const items = [
+      { key: 'marker_gaucho', text: 'Vos (El Gaucho)' },
+      { key: 'marker_available', text: 'Desbloqueado' },
+      { key: 'marker_check', text: 'Completado' },
+      { key: 'marker_lock', text: 'Bloqueado' }
+    ];
+
+    items.forEach((item, i) => {
+      const y = 130 + i * 40;
+      
+      if (this.textures.exists(item.key)) {
+        this.add.image(cx - 50, y, item.key).setDisplaySize(32, 32);
+      } else {
+        this.add.circle(cx - 45, y, 8, 0xffffff);
+      }
+      
+      this.add.text(cx - 30, y, item.text, { fontSize: '14px', color: '#dadada', fontFamily: "'Chakra Petch', monospace" }).setOrigin(0, 0.5);
+    });
   }
 
   _crearFondo() {
@@ -166,6 +193,17 @@ export class CampaignMapScene extends Phaser.Scene {
         }).setOrigin(0.5);
 
         markerObj = g;
+      }
+
+      if (estado === 'actual') {
+        this.tweens.add({
+          targets: markerObj,
+          y: prov.y - 8,
+          duration: 600,
+          yoyo: true,
+          repeat: -1,
+          ease: 'Sine.easeInOut'
+        });
       }
 
       const lblX   = prov.x > 290 ? prov.x + 20 : prov.x - 20;
