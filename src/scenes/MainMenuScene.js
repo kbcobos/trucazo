@@ -27,7 +27,7 @@ export class MainMenuScene extends Phaser.Scene {
     this._crearFondo();
     this._crearLadoIzquierdo();
     this._crearLadoDerecho();
-    this.add.text(W - 12, H - 12, 'v1.0.0 — LOS QUE FACTURAN · 2026', {
+    this.add.text(W - 12, H - 12, 'v1.1.0 — LOS QUE FACTURAN · 2026', {
       fontSize: '11px', color: '#d1d1d1',
       fontFamily: "'Chakra Petch', monospace", letterSpacing: 2
     }).setOrigin(1, 1);
