@@ -319,23 +319,58 @@ export class GameBoardScene extends Phaser.Scene {
   }
 
   _actualizarBotones() {
-    const l        = this.logic;
-    const esT      = l.estado === EstadoJuego.TURNO_JUGADOR;
-    const hayRT = l.truco.quienCanto === 'rival' && l.truco.respuesta === Respuesta.PENDIENTE;
-    const hayRE = l.envido.quienCanto === 'rival' && l.envido.respuesta === Respuesta.PENDIENTE;
-    const puedeEnv = esT && l.puedeCantarEnvido('jugador');
-    const puedeT   = esT && l.puedeCantarTruco('jugador');
+  const l = this.logic;
 
-    this._setBtn('truco',      puedeT && l.truco.trucoActual === LlamadaTruco.NINGUNA);
-    this._setBtn('retruco',    puedeT && l.truco.trucoActual === LlamadaTruco.TRUCO);
-    this._setBtn('valecuatro', puedeT && l.truco.trucoActual === LlamadaTruco.RETRUCO);
-    this._setBtn('envido',     puedeEnv);
-    this._setBtn('real',       puedeEnv);
-    this._setBtn('falta',      puedeEnv);
-    this._setBtn('quiero',     hayRT || hayRE);
-    this._setBtn('noquiero',   hayRT || hayRE);
-    this._setBtn('mazo',       esT);
-  }
+  const esT = l.estado === EstadoJuego.TURNO_JUGADOR;
+
+  const hayRT =
+    l.truco.quienCanto === "rival" &&
+    l.truco.respuesta === Respuesta.PENDIENTE;
+
+  const hayRE =
+    l.envido.quienCanto === "rival" &&
+    l.envido.respuesta === Respuesta.PENDIENTE;
+
+  const respondiendoTruco =
+    l.estado === EstadoJuego.ESPERANDO_RESPUESTA_TRUCO &&
+    l.truco.quienCanto === "rival";
+
+  const respondiendoEnvido =
+    l.estado === EstadoJuego.ESPERANDO_RESPUESTA_ENVIDO &&
+    l.envido.quienCanto === "rival";
+
+  const puedeEnv =
+    (esT || respondiendoTruco || respondiendoEnvido) &&
+    l.puedeCantarEnvido("jugador");
+
+  const puedeT =
+    (esT || respondiendoTruco) &&
+    l.puedeCantarTruco("jugador");
+
+  this._setBtn(
+    "truco",
+    puedeT && l.truco.trucoActual === LlamadaTruco.NINGUNA
+  );
+
+  this._setBtn(
+    "retruco",
+    puedeT && l.truco.trucoActual === LlamadaTruco.TRUCO
+  );
+
+  this._setBtn(
+    "valecuatro",
+    puedeT && l.truco.trucoActual === LlamadaTruco.RETRUCO
+  );
+
+  this._setBtn("envido", puedeEnv);
+  this._setBtn("real", puedeEnv);
+  this._setBtn("falta", puedeEnv);
+
+  this._setBtn("quiero", hayRT || hayRE);
+  this._setBtn("noquiero", hayRT || hayRE);
+
+  this._setBtn("mazo", esT);
+}
 
   _setBtn(id, visible) {
     const b = this._panelAcciones[id];

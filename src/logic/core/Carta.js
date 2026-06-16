@@ -20,7 +20,8 @@ export class Carta {
       return 11;
     }
     const tabla = { 3:5, 2:6, 12:8, 11:9, 10:10, 6:12, 5:13, 4:14 };
-    return tabla[num] ?? 14;
+    // FIX: fallback era 14 (igual al 4), causando empates incorrectos con números inválidos
+    return tabla[num] ?? 15;
   }
 
   static calcularValorEnvido(num) {

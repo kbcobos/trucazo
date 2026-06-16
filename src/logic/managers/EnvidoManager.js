@@ -7,12 +7,12 @@ export class EnvidoManager {
   }
 
   reset() {
-    this.cantos = [];
+    this.cantos       = [];
     this.envidoActual = LlamadaEnvido.NINGUNA;
-    this.quienCanto = null;
-    this.respuesta = Respuesta.PENDIENTE;
+    this.quienCanto   = null;
+    this.respuesta    = Respuesta.PENDIENTE;
     this.puntosEnJuego = 0;
-    this.finalizado = false;
+    this.finalizado   = false;
   }
 
   calcularPuntosMano(mano, powerupsActivos = [], esJugador = false) {
@@ -20,30 +20,21 @@ export class EnvidoManager {
     let maxPaloSize = 0;
 
     for (const carta of mano) {
-      if (!porPalo[carta.palo]) {
-        porPalo[carta.palo] = [];
-      }
+      if (!porPalo[carta.palo]) porPalo[carta.palo] = [];
       porPalo[carta.palo].push(carta.valorEnvido);
     }
 
     let mejor = 0;
 
     for (const vals of Object.values(porPalo)) {
-      if (vals.length > maxPaloSize) {
-        maxPaloSize = vals.length;
-      }
-
+      if (vals.length > maxPaloSize) maxPaloSize = vals.length;
       vals.sort((a, b) => b - a);
 
       if (vals.length >= 2) {
         const pts = vals[0] + vals[1] + 20;
-        if (pts > mejor) {
-          mejor = pts;
-        }
+        if (pts > mejor) mejor = pts;
       } else {
-        if (vals[0] > mejor) {
-          mejor = vals[0];
-        }
+        if (vals[0] > mejor) mejor = vals[0];
       }
     }
 
@@ -57,11 +48,7 @@ export class EnvidoManager {
   determinarGanador(ptsJugador, ptsRival, manoActual, powerupsActivos = []) {
     if (ptsJugador > ptsRival) return 'jugador';
     if (ptsRival > ptsJugador) return 'rival';
-
-    if (powerupsActivos.includes('grito_quiero')) {
-      return 'jugador';
-    }
-
+    if (powerupsActivos.includes('grito_quiero')) return 'jugador';
     return manoActual;
   }
 
@@ -76,14 +63,10 @@ export class EnvidoManager {
     for (const canto of this.cantos) {
       switch (canto) {
         case LlamadaEnvido.ENVIDO:
-          total += 2;
-          break;
         case LlamadaEnvido.ENVIDO_ENVIDO:
-          total += 2;
-          break;
+          total += 2; break;
         case LlamadaEnvido.REAL_ENVIDO:
-          total += 3;
-          break;
+          total += 3; break;
         case LlamadaEnvido.FALTA_ENVIDO:
           break;
       }
@@ -92,37 +75,36 @@ export class EnvidoManager {
   }
 
   getPuntosFalta(puntosParaGanar, ptsJugador, ptsRival) {
-    return puntosParaGanar - Math.max(ptsJugador, ptsRival);
+    // FIX: garantizar mínimo 1 punto
+    return Math.max(puntosParaGanar - Math.max(ptsJugador, ptsRival), 1);
   }
 
   getPuntosNoQuiero() {
-    if (this.cantos.length === 1) {
-      return 1;
-    }
+    // Primer canto rechazado: siempre vale 1
+    if (this.cantos.length === 1) return 1;
 
+    // Escalada rechazada: cobra lo acumulado hasta el penúltimo canto
     let puntosAcumulados = 0;
     for (let i = 0; i < this.cantos.length - 1; i++) {
       switch (this.cantos[i]) {
         case LlamadaEnvido.ENVIDO:
         case LlamadaEnvido.ENVIDO_ENVIDO:
-          puntosAcumulados += 2;
-          break;
+          puntosAcumulados += 2; break;
         case LlamadaEnvido.REAL_ENVIDO:
-          puntosAcumulados += 3;
-          break;
+          puntosAcumulados += 3; break;
       }
     }
-    
-    return puntosAcumulados;
+    // FIX: el original podía devolver 0; garantizar mínimo 1
+    return Math.max(puntosAcumulados, 1);
   }
 
   aceptar() {
-    this.respuesta = Respuesta.QUIERO;
+    this.respuesta  = Respuesta.QUIERO;
     this.finalizado = true;
   }
 
   rechazar() {
-    this.respuesta = Respuesta.NO_QUIERO;
+    this.respuesta  = Respuesta.NO_QUIERO;
     this.finalizado = true;
   }
 }
