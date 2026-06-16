@@ -485,7 +485,7 @@ export class GameBoardScene extends Phaser.Scene {
     const msgs = { jugador:'Ganaste la baza', rival:'Rival ganó la baza', empate:'= Empate' };
     this._lblEstado.setText(msgs[ganador] ?? '');
     this._actualizarBazas();
-    this.time.delayedCall(2500, () => {
+    this.time.delayedCall(3000, () => {
       this._limpiarMesa();
       this._lblEstado.setText('');
       if (this.logic.estado === EstadoJuego.TURNO_JUGADOR) {
